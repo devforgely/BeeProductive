@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Life Protocol"
+rootProject.name = "Bee Productive"
 include(":app")

@@ -1,3 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Life Protocol</string>
+    <string name="app_name">Bee Productive</string>
+    <string name="widget_name">Hive</string>
+    <string name="widget_description">Your bee, today\'s honeycomb, and nectar.</string>
+    <string name="widget_loading">The hive is waking up.</string>
 </resources>

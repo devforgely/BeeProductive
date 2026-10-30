@@ -7,13 +7,13 @@ plugins {
 }
 
 android {
-    namespace = "com.devforgely.lifeprotocol"
+    namespace = "com.devforgely.beeproductive"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.devforgely.lifeprotocol"
+        applicationId = "com.devforgely.beeproductive"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation("androidx.compose.material:material-icons-core")
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.material3)
@@ -66,7 +67,12 @@ dependencies {
     ksp(libs.google.hilt.compiler)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
-
+    implementation(libs.lottie.compose)
+    implementation(libs.billing.ktx)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
