@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.devforgely.beeproductive.core.components.BeeAnimation
 import com.devforgely.beeproductive.core.components.ChoiceCard
-import com.devforgely.beeproductive.core.components.LottieLoop
 import com.devforgely.beeproductive.core.components.MeadowBackground
 import com.devforgely.beeproductive.core.components.PrimaryBeeButton
 import com.devforgely.beeproductive.core.components.QuietButton
@@ -71,7 +70,6 @@ fun SupporterScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
         ) {
-            LottieLoop("honey_drip.json", Modifier.height(90.dp).fillMaxWidth())
             BeeAnimation(
                 clip = BeeClip.IDLE,
                 accent = bee?.accent ?: BeeAccent.HONEY,
