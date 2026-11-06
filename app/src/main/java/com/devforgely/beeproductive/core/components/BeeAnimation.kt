@@ -10,21 +10,21 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import com.devforgely.beeproductive.core.theme.BlushDeep
-import com.devforgely.beeproductive.domain.model.BeeAccent
 import com.devforgely.beeproductive.domain.model.BeeClip
+
+private val BeeHoney = Color(0xFFE0A106)
 
 @Composable
 fun BeeAnimation(
     clip: BeeClip,
-    accent: BeeAccent,
     speed: Float,
-    modifier: Modifier = Modifier.size(200.dp),
+    modifier: Modifier = Modifier,
 ) {
-    FallbackBee(Color(accent.argb), modifier)
+    FallbackBee(modifier)
 }
 
 @Composable
-private fun FallbackBee(accent: Color, modifier: Modifier) {
+private fun FallbackBee(modifier: Modifier) {
     Canvas(modifier) {
         val center = Offset(size.width / 2f, size.height / 2f)
         drawCircle(Color(0x33000000), size.minDimension * 0.18f, center.copy(y = center.y + size.minDimension * 0.32f))
@@ -34,7 +34,7 @@ private fun FallbackBee(accent: Color, modifier: Modifier) {
         rotate(18f, center.copy(x = center.x + 40f)) {
             drawOval(Color(0xB3B9D7F2), topLeft = center.copy(x = center.x + 20f, y = center.y - 40f), size = androidx.compose.ui.geometry.Size(70f, 36f))
         }
-        drawOval(accent, topLeft = center.copy(x = center.x + 28f, y = center.y - 10f), size = androidx.compose.ui.geometry.Size(36f, 44f))
+        drawOval(BeeHoney, topLeft = center.copy(x = center.x + 28f, y = center.y - 10f), size = androidx.compose.ui.geometry.Size(36f, 44f))
         scale(1f, 0.86f, center) {
             drawCircle(Color(0xFFF6C23A), size.minDimension * 0.28f, center)
         }

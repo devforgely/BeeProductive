@@ -5,7 +5,6 @@ data class Cosmetic(
     val name: String,
     val kind: CosmeticKind,
     val nectarCost: Int,
-    val accent: BeeAccent? = null,
 )
 
 object CosmeticCatalog {
@@ -13,9 +12,9 @@ object CosmeticCatalog {
         Cosmetic("outfit_flower", "Flower crown", CosmeticKind.OUTFIT, 40),
         Cosmetic("outfit_scarf", "Honey scarf", CosmeticKind.OUTFIT, 50),
         Cosmetic("outfit_bow", "Sage bow", CosmeticKind.OUTFIT, 60),
-        Cosmetic("theme_blossom", "Blossom meadow", CosmeticKind.THEME, 70, BeeAccent.BLUSH),
-        Cosmetic("theme_dusk", "Dusk garden", CosmeticKind.THEME, 80, BeeAccent.AMBER),
-        Cosmetic("theme_rain", "Soft rain", CosmeticKind.THEME, 80, BeeAccent.SKY),
+        Cosmetic("theme_blossom", "Blossom meadow", CosmeticKind.THEME, 70),
+        Cosmetic("theme_dusk", "Dusk garden", CosmeticKind.THEME, 80),
+        Cosmetic("theme_rain", "Soft rain", CosmeticKind.THEME, 80),
         Cosmetic("decor_lantern", "Hive lantern", CosmeticKind.DECORATION, 45),
         Cosmetic("decor_mushroom", "Mossy mushroom", CosmeticKind.DECORATION, 55),
     )

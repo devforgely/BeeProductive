@@ -34,7 +34,6 @@ import com.devforgely.beeproductive.core.components.MeadowBackground
 import com.devforgely.beeproductive.core.components.PrimaryBeeButton
 import com.devforgely.beeproductive.core.components.QuietButton
 import com.devforgely.beeproductive.data.repository.BillingEvent
-import com.devforgely.beeproductive.domain.model.BeeAccent
 import com.devforgely.beeproductive.domain.model.BeeClip
 import com.devforgely.beeproductive.domain.model.BeePersonality
 import com.devforgely.beeproductive.domain.model.HiveCopy
@@ -72,7 +71,6 @@ fun SupporterScreen(
         ) {
             BeeAnimation(
                 clip = BeeClip.IDLE,
-                accent = bee?.accent ?: BeeAccent.HONEY,
                 speed = HiveCopy.speed(bee?.personality ?: BeePersonality.CALM, snapshot.mood),
                 modifier = Modifier.size(180.dp),
             )

@@ -31,6 +31,7 @@ import com.devforgely.beeproductive.domain.model.JournalKind
 import com.devforgely.beeproductive.ui.HiveViewModel
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.size
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun ReflectScreen(
@@ -131,7 +132,7 @@ fun FocusScreen(viewModel: HiveViewModel = hiltViewModel()) {
     var note by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(running, remaining) {
         if (running && remaining > 0) {
-            delay(1000)
+            delay(1000.milliseconds)
             remaining -= 1
             if (remaining == 0) {
                 running = false
@@ -146,7 +147,6 @@ fun FocusScreen(viewModel: HiveViewModel = hiltViewModel()) {
             Text("Focus flight", style = MaterialTheme.typography.headlineMedium)
             BeeAnimation(
                 clip = if (running) BeeClip.FLUTTER else BeeClip.IDLE,
-                accent = snapshot.bee?.accent ?: com.devforgely.beeproductive.domain.model.BeeAccent.HONEY,
                 speed = if (running) 1.3f else 0.8f,
                 modifier = Modifier.size(180.dp),
             )

@@ -13,6 +13,7 @@ val RubikFontFamily = FontFamily(
     Font(R.font.rubik_medium, FontWeight.Medium),
     Font(R.font.rubik_semibold, FontWeight.SemiBold),
     Font(R.font.rubik_bold, FontWeight.Bold),
+    Font(R.font.rubik_extrabold, FontWeight.W800),
 )
 
 val BeeTypography = Typography(

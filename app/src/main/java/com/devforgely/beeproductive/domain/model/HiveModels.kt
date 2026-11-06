@@ -14,14 +14,8 @@ enum class BeePersonality(val label: String, val blurb: String) {
     PLAYFUL("Playful", "A bounce in every flight."),
     CALM("Calm", "Soft hover, unhurried heart."),
     CURIOUS("Curious", "Always sniffing the next blossom."),
-}
-
-enum class BeeAccent(val label: String, val argb: Long) {
-    HONEY("Honey", 0xFFE0A106),
-    SAGE("Sage", 0xFF6E9A62),
-    SKY("Sky", 0xFF6AA8D6),
-    BLUSH("Blush", 0xFFE89284),
-    AMBER("Amber", 0xFFD4842A),
+    COMPASSIONATE("Compassionate", "A soft wing for a caring day."),
+    CONFIDENT("Confident", "Bright flight, steady heart."),
 }
 
 enum class Mood(val label: String) {
@@ -113,8 +107,6 @@ object SupportProducts {
     )
 
     val ALL = catalog.map { it.id }.toSet()
-
-    fun find(id: String): SupportTier? = catalog.firstOrNull { it.id == id }
 
     fun matching(productIds: List<String>): String? = productIds.firstOrNull { it in ALL }
 }

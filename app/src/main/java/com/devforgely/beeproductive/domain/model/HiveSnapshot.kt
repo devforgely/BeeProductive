@@ -4,7 +4,6 @@ import java.time.LocalDate
 
 data class BeeProfile(
     val name: String,
-    val accent: BeeAccent,
     val personality: BeePersonality,
     val outfitId: String?,
     val decorationId: String?,
@@ -151,7 +150,6 @@ data class HiveSnapshot(
 
 data class OnboardingDraft(
     val name: String,
-    val accent: BeeAccent,
     val personality: BeePersonality,
     val area: LifeArea,
     val tone: String,

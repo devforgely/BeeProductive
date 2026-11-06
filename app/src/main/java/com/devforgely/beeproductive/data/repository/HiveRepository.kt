@@ -18,7 +18,6 @@ import com.devforgely.beeproductive.data.local.entity.StreakRepairEntity
 import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
 import com.devforgely.beeproductive.data.widget.WidgetFace
 import com.devforgely.beeproductive.data.widget.WidgetUpdater
-import com.devforgely.beeproductive.domain.model.BeeAccent
 import com.devforgely.beeproductive.domain.model.BeeProfile
 import com.devforgely.beeproductive.domain.model.BeePersonality
 import com.devforgely.beeproductive.domain.model.CheckItem
@@ -146,7 +145,6 @@ class HiveRepository @Inject constructor(
         dao.upsertBee(
             BeeProfileEntity(
                 name = draft.name.trim().ifBlank { "Clover" },
-                accent = draft.accent.name,
                 personality = draft.personality.name,
                 outfitId = null,
                 decorationId = null,
@@ -159,11 +157,10 @@ class HiveRepository @Inject constructor(
             tone = draft.tone,
             start = today,
         )
-        val habitIds = insertHabits(cycleId, draft.habits.ifEmpty {
+        insertHabits(cycleId, draft.habits.ifEmpty {
             LifeAreaTemplates.forArea(draft.area).starterHabits
         })
         insertGoals(cycleId, LifeAreaTemplates.forArea(draft.area), elevate = false)
-        completeFirst(cycleId, habitIds.first(), today)
         preferences.setOnboardingComplete()
         notifications.applySchedule()
     }
@@ -492,19 +489,6 @@ class HiveRepository @Inject constructor(
         }
     }
 
-    private suspend fun completeFirst(cycleId: Long, habitId: Long, today: LocalDate) {
-        val day = today.toString()
-        dao.insertLog(
-            HabitLogEntity(
-                habitId = habitId,
-                cycleId = cycleId,
-                day = day,
-                completed = true,
-            ),
-        )
-        grant(cycleId, day, NectarRules.HABIT_NECTAR, "habit")
-    }
-
     private suspend fun grant(cycleId: Long, day: String, amount: Int, reason: String) {
         dao.insertNectar(
             NectarEntryEntity(
@@ -545,7 +529,7 @@ private data class ExtraChunk(
     val journals: List<JournalEntity>,
     val weekly: WeeklyReviewEntity?,
     val repairs: List<StreakRepairEntity>,
-    val milestones: List<com.devforgely.beeproductive.data.local.entity.MilestoneEntity>,
+    val milestones: List<MilestoneEntity>,
     val focusGranted: Boolean,
 )
 
@@ -576,7 +560,6 @@ private fun Header.toSnapshot(
         bee = bee?.let {
             BeeProfile(
                 name = it.name,
-                accent = BeeAccent.valueOf(it.accent),
                 personality = BeePersonality.valueOf(it.personality),
                 outfitId = it.outfitId,
                 decorationId = it.decorationId,
@@ -633,8 +616,3 @@ private fun Header.toSnapshot(
         today = today,
     )
 }
-
-private fun <T1, T2, R> Flow<T1>.combine(
-    other: Flow<T2>,
-    transform: suspend (T1, T2) -> R,
-): Flow<R> = kotlinx.coroutines.flow.combine(this, other, transform)

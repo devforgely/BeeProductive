@@ -1,6 +1,5 @@
 package com.devforgely.beeproductive.ui.hive
 
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -87,7 +86,6 @@ fun HiveScreen(
                     queenGlow = snapshot.queenGlow,
                     cells = snapshot.cells,
                     goals = snapshot.goals,
-                    accent = bee.accent,
                     clip = HiveCopy.clip(bee.personality, snapshot.mood, celebrating = false, foraging = false),
                     speed = HiveCopy.speed(bee.personality, snapshot.mood),
                     outfitId = bee.outfitId,
@@ -214,7 +212,6 @@ fun MeadowScreen(viewModel: HiveViewModel = hiltViewModel()) {
                     queenGlow = snapshot.queenGlow,
                     cells = snapshot.cells,
                     goals = snapshot.goals,
-                    accent = snapshot.bee?.accent ?: com.devforgely.beeproductive.domain.model.BeeAccent.HONEY,
                     clip = BeeClip.FORAGE,
                     speed = 1.2f,
                     outfitId = snapshot.bee?.outfitId,

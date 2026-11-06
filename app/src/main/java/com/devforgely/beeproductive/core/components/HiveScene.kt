@@ -36,7 +36,6 @@ import com.devforgely.beeproductive.core.theme.Sage
 import com.devforgely.beeproductive.core.theme.Sky
 import com.devforgely.beeproductive.core.theme.Wax
 import com.devforgely.beeproductive.core.theme.WaxCap
-import com.devforgely.beeproductive.domain.model.BeeAccent
 import com.devforgely.beeproductive.domain.model.BeeClip
 import com.devforgely.beeproductive.domain.model.CellVisual
 import com.devforgely.beeproductive.domain.model.GoalItem
@@ -49,7 +48,6 @@ fun HiveScene(
     queenGlow: Float,
     cells: List<CellVisual>,
     goals: List<GoalItem>,
-    accent: BeeAccent,
     clip: BeeClip,
     speed: Float,
     outfitId: String?,
@@ -77,8 +75,8 @@ fun HiveScene(
             )
             repeat(7) { index ->
                 val angle = drift * 6.28f + index
-                val x = center.x + cos(angle).toFloat() * (80f + index * 18f)
-                val y = center.y + sin(angle * 1.3f).toFloat() * 50f - 30f
+                val x = center.x + cos(angle) * (80f + index * 18f)
+                val y = center.y + sin(angle * 1.3f) * 50f - 30f
                 drawCircle(HoneyGold.copy(alpha = 0.45f), 3f + (index % 3), Offset(x, y))
             }
             cells.forEach { cell ->
@@ -117,7 +115,6 @@ fun HiveScene(
         Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp)) {
             BeeAnimation(
                 clip = clip,
-                accent = accent,
                 speed = speed,
                 modifier = Modifier.size(168.dp),
             )

@@ -1,6 +1,5 @@
 package com.devforgely.beeproductive.ui.apiary
 
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,12 +23,10 @@ import com.devforgely.beeproductive.core.components.GardenScaffold
 import com.devforgely.beeproductive.core.components.PrimaryBeeButton
 import com.devforgely.beeproductive.core.components.QuietButton
 import com.devforgely.beeproductive.core.components.SoftCard
-import com.devforgely.beeproductive.domain.model.BeeAccent
 import com.devforgely.beeproductive.domain.model.BeeClip
 import com.devforgely.beeproductive.domain.model.CosmeticCatalog
 import com.devforgely.beeproductive.domain.model.HarvestChoice
 import com.devforgely.beeproductive.domain.model.HiveCopy
-import com.devforgely.beeproductive.domain.model.JournalKind
 import com.devforgely.beeproductive.domain.model.LifeArea
 import com.devforgely.beeproductive.domain.model.LifeAreaTemplates
 import com.devforgely.beeproductive.domain.model.RepairOutcome
@@ -58,12 +55,11 @@ fun ApiaryScreen(
                 if (bee != null) {
                     BeeAnimation(
                         clip = BeeClip.IDLE,
-                        accent = bee.accent,
                         speed = HiveCopy.speed(bee.personality, snapshot.mood),
                         modifier = Modifier.size(140.dp),
                     )
                     Text(bee.name, style = MaterialTheme.typography.headlineSmall)
-                    Text("${bee.personality.label} · ${bee.accent.label}")
+                    Text(bee.personality.label)
                 }
                 Text("${snapshot.balance} nectar on the shelf")
                 Text("Streak ${snapshot.streak}")

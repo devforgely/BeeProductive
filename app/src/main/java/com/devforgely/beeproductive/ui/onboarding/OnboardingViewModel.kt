@@ -1,87 +1,130 @@
 package com.devforgely.beeproductive.ui.onboarding
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devforgely.beeproductive.data.repository.HiveRepository
-import com.devforgely.beeproductive.domain.model.BeeAccent
 import com.devforgely.beeproductive.domain.model.BeePersonality
 import com.devforgely.beeproductive.domain.model.LifeArea
 import com.devforgely.beeproductive.domain.model.LifeAreaTemplates
 import com.devforgely.beeproductive.domain.model.OnboardingDraft
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 enum class OnboardingStep {
     Welcome,
-    Story,
-    Meet,
-    Area,
-    State,
-    Star,
-    First,
-    Celebration,
+    HiveIntro,
+    Pronoun,
+    BeeName,
+    Trait,
+    UserName,
+    Support,
+    Generating,
+    Plan,
 }
+
+enum class BeePronoun(val label: String) {
+    HE("he/him"),
+    SHE("she/her"),
+    THEY("they/them"),
+}
+
+data class StarterGoal(
+    val emoji: String,
+    val title: String,
+)
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val repository: HiveRepository,
 ) : ViewModel() {
     var step by mutableStateOf(OnboardingStep.Welcome)
-    var storyPage by mutableIntStateOf(0)
-    var name by mutableStateOf("")
-    var accent by mutableStateOf(BeeAccent.SAGE)
-    var personality by mutableStateOf(BeePersonality.CALM)
+    var pronoun by mutableStateOf<BeePronoun?>(BeePronoun.entries.first())
+    var name by mutableStateOf(BeeNames.random())
+    var userName by mutableStateOf("")
+    var personality by mutableStateOf<BeePersonality?>(BeePersonality.entries.first())
+    var supportAreas by mutableStateOf<Set<LifeArea>>(emptySet())
     var area by mutableStateOf(LifeArea.MIND_FOCUS)
-    var stateId by mutableStateOf<String?>(null)
     var tone by mutableStateOf("Start gently.")
-    var northStar by mutableStateOf(LifeAreaTemplates.forArea(LifeArea.MIND_FOCUS).northStar)
-    var habits by mutableStateOf(LifeAreaTemplates.forArea(LifeArea.MIND_FOCUS).starterHabits)
+    var northStar by mutableStateOf("")
+    var habits by mutableStateOf<List<String>>(emptyList())
+    var starterGoals by mutableStateOf<List<StarterGoal>>(emptyList())
     var saving by mutableStateOf(false)
 
-    fun chooseArea(next: LifeArea) {
-        area = next
-        val template = LifeAreaTemplates.forArea(next)
-        northStar = template.northStar
-        habits = template.starterHabits
-        stateId = null
+    fun shuffleBeeName() {
+        val choices = BeeNames.filter { it != name }
+        name = choices[Random.nextInt(choices.size)]
     }
 
-    fun chooseState(id: String, nextTone: String) {
-        stateId = id
-        tone = nextTone
+    fun toggleSupport(area: LifeArea) {
+        supportAreas = if (area in supportAreas) supportAreas - area else supportAreas + area
     }
 
-    fun updateHabit(index: Int, value: String) {
-        habits = habits.toMutableList().also { list ->
-            if (index in list.indices) list[index] = value
+    fun preparePlan() {
+        val chosen = SupportOrder.filter { it in supportAreas }
+        if (chosen.isEmpty()) return
+        area = chosen.first()
+        val templates = chosen.map { LifeAreaTemplates.forArea(it) }
+        northStar = templates.first().northStar
+        val perArea = if (chosen.size == 1) 3 else 2
+        starterGoals = chosen.flatMap { lifeArea ->
+            val template = LifeAreaTemplates.forArea(lifeArea)
+            val emoji = SupportEmoji.getValue(lifeArea)
+            template.starterHabits.take(perArea).mapIndexed { index, habit ->
+                StarterGoal(emoji[index % emoji.size], habit)
+            }
         }
+        habits = starterGoals.map { it.title }
+        tone = "Start gently."
     }
 
-    fun celebrateFirst(onFinished: () -> Unit) {
+    fun plant(onFinished: () -> Unit) {
+        val chosenTrait = personality ?: return
         if (saving) return
         viewModelScope.launch {
             saving = true
-            step = OnboardingStep.Celebration
             repository.plantHive(
                 OnboardingDraft(
                     name = name,
-                    accent = accent,
-                    personality = personality,
+                    personality = chosenTrait,
                     area = area,
                     tone = tone,
                     northStar = northStar,
                     habits = habits,
                 ),
             )
-            delay(1700)
             saving = false
             onFinished()
         }
+    }
+
+    private companion object {
+        val BeeNames = listOf(
+            "Sunny", "Clover", "Pip", "Marigold", "Nectar", "Buzz",
+            "Honey", "Willow", "Poppy", "Maple", "Breeze", "Pollen",
+            "Daisy", "Coco", "Amber", "Birch", "Fern", "Ginger",
+            "Hazel", "Indigo", "Juniper", "Kiwi", "Luna", "Mango",
+            "Olive", "Peach", "Quinn", "Rosie", "Sage", "Toffee",
+        )
+
+        val SupportOrder = listOf(
+            LifeArea.HEALTH_ENERGY,
+            LifeArea.MIND_FOCUS,
+            LifeArea.WORK_GOALS,
+            LifeArea.CREATIVITY,
+            LifeArea.REST,
+        )
+
+        val SupportEmoji = mapOf(
+            LifeArea.HEALTH_ENERGY to listOf("🌻", "💧", "🦒"),
+            LifeArea.MIND_FOCUS to listOf("🧠", "✨", "😊"),
+            LifeArea.WORK_GOALS to listOf("🎯", "📝", "📌"),
+            LifeArea.CREATIVITY to listOf("🎨", "💡", "🌸"),
+            LifeArea.REST to listOf("🌙", "🍃", "🍵"),
+        )
     }
 }

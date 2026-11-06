@@ -21,6 +21,8 @@ object HiveCopy {
                 BeePersonality.DILIGENT -> "$name is waiting quietly. One careful action will do."
                 BeePersonality.PLAYFUL -> "$name is tucked in, still smiling. A tiny flight counts."
                 BeePersonality.CURIOUS -> "$name wonders what the smallest sweet thing could be today."
+                BeePersonality.COMPASSIONATE -> "$name stays close. One kind action is a full flight."
+                BeePersonality.CONFIDENT -> "$name is ready when you are. Start with one sure step."
             }
         }
         if (streak <= 0) {
@@ -29,6 +31,8 @@ object HiveCopy {
                 BeePersonality.PLAYFUL -> "$name is doing a tiny hop. The hive starts whenever you do."
                 BeePersonality.CALM -> "No rush in the grass. $name is content to begin again."
                 BeePersonality.DILIGENT -> "A fresh comb is open. $name is ready for one honest action."
+                BeePersonality.COMPASSIONATE -> "$name saved you a soft landing. Begin whenever it feels kind."
+                BeePersonality.CONFIDENT -> "$name faces the meadow. The first flower is already enough."
             }
         }
         return when (personality) {
@@ -36,6 +40,8 @@ object HiveCopy {
             BeePersonality.PLAYFUL -> "$name spins once for a $streak-day glow. Want to fill another cell?"
             BeePersonality.CALM -> "$name hums over $streak steady days. The comb can take its time."
             BeePersonality.CURIOUS -> "$name has been out for $streak days and still sniffs the wind."
+            BeePersonality.COMPASSIONATE -> "$name is proud of $streak gentle days. Stay as kind as you began."
+            BeePersonality.CONFIDENT -> "$streak days in the comb. $name knows you can add one more."
         }
     }
 

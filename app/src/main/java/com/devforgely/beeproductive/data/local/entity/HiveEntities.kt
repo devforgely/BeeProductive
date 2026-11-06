@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 data class BeeProfileEntity(
     @PrimaryKey val id: Int = 1,
     val name: String,
-    val accent: String,
     val personality: String,
     val outfitId: String?,
     val decorationId: String?,
