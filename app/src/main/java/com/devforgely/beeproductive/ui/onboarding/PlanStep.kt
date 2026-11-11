@@ -1,5 +1,6 @@
 package com.devforgely.beeproductive.ui.onboarding
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -101,7 +103,11 @@ private fun StarterPlanCard(
                         .padding(vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(text = goal.emoji, fontSize = 20.sp)
+                    Image(
+                        painter = painterResource(goal.icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                    )
                     Spacer(Modifier.width(12.dp))
                     Text(
                         text = goal.title,

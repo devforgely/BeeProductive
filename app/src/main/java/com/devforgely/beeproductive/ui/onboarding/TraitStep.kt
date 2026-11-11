@@ -1,5 +1,11 @@
 package com.devforgely.beeproductive.ui.onboarding
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,13 +19,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -41,13 +49,16 @@ private val tightText = TextStyle(
     platformStyle = PlatformTextStyle(includeFontPadding = false),
 )
 
+private const val TraitIconIdle = 36f
+private const val TraitIconChosen = 48f
+
 private val traitChoices = listOf(
-    TraitChoice(BeePersonality.DILIGENT, R.drawable.ic_target),
-    TraitChoice(BeePersonality.PLAYFUL, R.drawable.ic_sunny),
-    TraitChoice(BeePersonality.CALM, R.drawable.ic_moon_stars),
-    TraitChoice(BeePersonality.CURIOUS, R.drawable.ic_quiz),
-    TraitChoice(BeePersonality.COMPASSIONATE, R.drawable.ic_honey_drop),
-    TraitChoice(BeePersonality.CONFIDENT, R.drawable.ic_trophy),
+    TraitChoice(BeePersonality.DILIGENT, R.drawable.ic_trait_diligent),
+    TraitChoice(BeePersonality.PLAYFUL, R.drawable.ic_trait_playful),
+    TraitChoice(BeePersonality.CALM, R.drawable.ic_trait_calm),
+    TraitChoice(BeePersonality.CURIOUS, R.drawable.ic_trait_curious),
+    TraitChoice(BeePersonality.COMPASSIONATE, R.drawable.ic_trait_compassionate),
+    TraitChoice(BeePersonality.CONFIDENT, R.drawable.ic_trait_confident),
 )
 
 @Composable
@@ -110,7 +121,22 @@ private fun TraitChoiceRow(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    val tint = if (selected) WelcomeSkyBlue else WelcomeMuted
+    val iconScale = remember { Animatable(if (selected) TraitIconChosen / TraitIconIdle else 1f) }
+    LaunchedEffect(selected) {
+        val target = if (selected) TraitIconChosen / TraitIconIdle else 1f
+        if (iconScale.value == target) return@LaunchedEffect
+        iconScale.animateTo(
+            targetValue = target,
+            animationSpec = if (selected) {
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium,
+                )
+            } else {
+                tween(durationMillis = 200, easing = FastOutLinearInEasing)
+            },
+        )
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,11 +147,15 @@ private fun TraitChoiceRow(
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
+        Image(
             painter = painterResource(icon),
             contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(22.dp),
+            modifier = Modifier
+                .size(TraitIconIdle.dp)
+                .graphicsLayer {
+                    scaleX = iconScale.value
+                    scaleY = iconScale.value
+                },
         )
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
