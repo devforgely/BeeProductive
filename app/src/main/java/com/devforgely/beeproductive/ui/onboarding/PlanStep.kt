@@ -31,7 +31,7 @@ import com.devforgely.beeproductive.core.components.SkyButton
 import com.devforgely.beeproductive.core.components.SpeechBox
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
-private val PlanPaper = Color(0xFFFFF6E4)
+private val PlanPaper = Color(0xFFFFF2E0)
 private val PlanBorder = Color(0xFFFFC48A)
 private val PlanTape = Color(0xFFF6C445)
 
@@ -106,7 +106,7 @@ private fun StarterPlanCard(
                     Image(
                         painter = painterResource(goal.icon),
                         contentDescription = null,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(36.dp),
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
