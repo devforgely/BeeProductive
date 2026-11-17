@@ -22,7 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,7 +39,7 @@ internal fun GeneratingStep(viewModel: OnboardingViewModel) {
         progress.animateTo(1f, tween(durationMillis = 1700, easing = FastOutSlowInEasing))
         viewModel.step = OnboardingStep.Plan
     }
-    val ringSize = 196.dp
+    val ringSize = 240.dp
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,12 +69,16 @@ internal fun GeneratingStep(viewModel: OnboardingViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            color = WelcomeInk,
-            fontFamily = RubikFontFamily,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.W800,
-            textAlign = TextAlign.Center,
-            lineHeight = 26.sp,
+            style = TextStyle(
+                color = WelcomeInk,
+                fontFamily = RubikFontFamily,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.W800,
+                lineHeight = 26.sp,
+                textAlign = TextAlign.Center,
+                lineBreak = LineBreak.Simple,
+                hyphens = Hyphens.None,
+            ),
         )
     }
 }

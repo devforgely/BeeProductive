@@ -1,24 +1,27 @@
 package com.devforgely.beeproductive.core.components
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.devforgely.beeproductive.R
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
 private val NameInk = Color(0xFF252525)
@@ -33,50 +36,52 @@ fun NameField(
     onValueChange: (String) -> Unit,
     onClear: () -> Unit,
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        textStyle = TextStyle(
-            fontFamily = RubikFontFamily,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = NameInk,
-            textAlign = TextAlign.Center,
-        ),
-        placeholder = {
-            Text(
-                text = placeholder,
-                modifier = Modifier.fillMaxWidth(),
-                color = NameMuted,
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            textStyle = TextStyle(
                 fontFamily = RubikFontFamily,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
+                color = NameInk,
                 textAlign = TextAlign.Center,
-            )
-        },
-        trailingIcon = {
-            if (value.isNotEmpty()) {
+            ),
+            placeholder = {
                 Text(
-                    text = "×",
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable(onClick = onClear)
-                        .padding(8.dp),
+                    text = placeholder,
+                    modifier = Modifier.fillMaxWidth(),
                     color = NameMuted,
-                    fontSize = 20.sp,
+                    fontFamily = RubikFontFamily,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                )
+            },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = NameSky,
+                unfocusedBorderColor = NameIdle,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                cursorColor = NameSky,
+            ),
+        )
+        if (value.isNotEmpty()) {
+            IconButton(
+                onClick = onClear,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_x),
+                    contentDescription = "Clear",
+                    tint = NameMuted,
+                    modifier = Modifier.size(20.dp),
                 )
             }
-        },
-        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-        shape = RoundedCornerShape(16.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = NameSky,
-            unfocusedBorderColor = NameIdle,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            cursorColor = NameSky,
-        ),
-    )
+        }
+    }
 }

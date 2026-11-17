@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.devforgely.beeproductive.core.components.SkyButton
+import com.devforgely.beeproductive.core.components.SolidButton
 import com.devforgely.beeproductive.core.components.SpeechBox
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
@@ -49,7 +49,7 @@ internal fun PlanStep(viewModel: OnboardingViewModel, onFinished: () -> Unit) {
             goals = viewModel.starterGoals,
         )
         Spacer(Modifier.height(20.dp))
-        SkyButton(
+        SolidButton(
             text = "let's do it!",
             enabled = !viewModel.saving,
             onClick = { viewModel.plant(onFinished) },

@@ -47,7 +47,7 @@ class OnboardingViewModel @Inject constructor(
     var pronoun by mutableStateOf<BeePronoun?>(BeePronoun.entries.first())
     var name by mutableStateOf(BeeNames.random())
     var userName by mutableStateOf("")
-    var personality by mutableStateOf<BeePersonality?>(BeePersonality.entries.first())
+    var personality by mutableStateOf<BeePersonality?>(null)
     var supportAreas by mutableStateOf<Set<LifeArea>>(emptySet())
     var area by mutableStateOf(LifeArea.MIND_FOCUS)
     var tone by mutableStateOf("Start gently.")

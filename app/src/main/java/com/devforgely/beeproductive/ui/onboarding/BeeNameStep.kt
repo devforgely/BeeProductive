@@ -14,7 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.devforgely.beeproductive.core.components.NameField
-import com.devforgely.beeproductive.core.components.SkyButton
+import com.devforgely.beeproductive.core.components.SolidButton
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
 private val ShuffleGray = Color(0xFFE4E4E8)
@@ -55,7 +55,7 @@ internal fun BeeNameStep(viewModel: OnboardingViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            SkyButton(
+            SolidButton(
                 text = "Shuffle",
                 enabled = true,
                 onClick = viewModel::shuffleBeeName,
@@ -64,7 +64,7 @@ internal fun BeeNameStep(viewModel: OnboardingViewModel) {
                 shadowColor = ShuffleGrayShadow,
                 contentColor = WelcomeInk,
             )
-            SkyButton(
+            SolidButton(
                 text = "Next",
                 enabled = viewModel.name.trim().length in 2..10,
                 onClick = { viewModel.step = OnboardingStep.Trait },

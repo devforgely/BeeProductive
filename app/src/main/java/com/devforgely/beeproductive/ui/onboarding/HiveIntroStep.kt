@@ -1,5 +1,8 @@
 package com.devforgely.beeproductive.ui.onboarding
 
+import android.media.AudioAttributes
+import android.media.MediaPlayer
+import android.media.audiofx.LoudnessEnhancer
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -25,26 +28,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+private const val HiveSwingAudioAsset = "audio/hive_swing.mp3"
+private const val HiveSwingLoudnessGainMilliBel = 1400
+private const val BeeEmergeDurationMillis = 3_000
+private const val HiveFadeOutDurationMillis = 2_000
+private val WelcomeScreenDuration = 3.seconds
 
 private val HivePopEasing = CubicBezierEasing(0.22f, 1.22f, 0.32f, 1f)
-private val HiveExitEasing = CubicBezierEasing(0.4f, 0f, 1f, 1f)
 private val HiveEnterEasing = CubicBezierEasing(0.16f, 1f, 0.3f, 1f)
 
 @Composable
 internal fun HiveIntroStep(onFinished: () -> Unit) {
     val finish by rememberUpdatedState(onFinished)
+    val context = LocalContext.current
     var playing by remember { mutableStateOf(false) }
+    var hiveSwinging by remember { mutableStateOf(false) }
+    var welcoming by remember { mutableStateOf(false) }
     val emerge = remember { Animatable(0f) }
     val hiveAlpha = remember { Animatable(1f) }
     val hiveScale = remember { Animatable(1f) }
@@ -52,7 +67,7 @@ internal fun HiveIntroStep(onFinished: () -> Unit) {
     val caption = remember { Animatable(0f) }
     val density = LocalDensity.current
     val pxPerDp = with(density) { 1.dp.toPx() }
-    val mouthPx = 62.dp.value * pxPerDp
+    val mouthPx = 100.dp.value * pxPerDp
     val captionRisePx = 12.dp.value * pxPerDp
     val hiveLiftPx = 18.dp.value * pxPerDp
     val hintAlpha by animateFloatAsState(
@@ -61,31 +76,100 @@ internal fun HiveIntroStep(onFinished: () -> Unit) {
         label = "hive-hint",
     )
 
+    val hiveComposition by rememberHiveSwingComposition()
+    val idleComposition by rememberBeeTraitsComposition(BeeIdleAnimationId)
+    val welcomeComposition by rememberBeeTraitsComposition(BeeWelcomeAnimationId)
+
+    val hiveProgress by animateLottieCompositionAsState(
+        composition = hiveComposition,
+        isPlaying = hiveSwinging,
+        iterations = LottieConstants.IterateForever,
+        restartOnPlay = true,
+    )
+    val idleProgress by animateLottieCompositionAsState(
+        composition = idleComposition,
+        isPlaying = playing && !welcoming,
+        iterations = LottieConstants.IterateForever,
+    )
+    val welcomeProgress by animateLottieCompositionAsState(
+        composition = welcomeComposition,
+        isPlaying = welcoming,
+        iterations = LottieConstants.IterateForever,
+        restartOnPlay = true,
+    )
+
     LaunchedEffect(playing) {
         if (!playing) return@LaunchedEffect
-        // Swing sound: app/src/main/res/raw/hive_swing.ogg
-        // Uncomment when the clip is in res/raw. MediaPlayer.create needs the generated id.
-        // val context = LocalContext.current
-        // val player = android.media.MediaPlayer.create(context, R.raw.hive_swing)
-        // player.setOnCompletionListener { it.release() }
-        // player.start()
-        delay(720.milliseconds)
-        emerge.animateTo(1f, tween(durationMillis = 640, easing = HivePopEasing))
-        delay(100.milliseconds)
-        coroutineScope {
-            launch { hiveAlpha.animateTo(0f, tween(durationMillis = 300, easing = HiveExitEasing)) }
-            launch { hiveScale.animateTo(0.84f, tween(durationMillis = 300, easing = HiveExitEasing)) }
-            launch { hiveLift.animateTo(1f, tween(durationMillis = 300, easing = HiveExitEasing)) }
+        hiveSwinging = true
+        var loudnessEnhancer: LoudnessEnhancer? = null
+        var player: MediaPlayer? = runCatching {
+            MediaPlayer().also { mediaPlayer ->
+                mediaPlayer.setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build(),
+                )
+                context.assets.openFd(HiveSwingAudioAsset).use { afd ->
+                    mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                    mediaPlayer.prepare()
+                }
+                mediaPlayer.setVolume(1f, 1f)
+                loudnessEnhancer = LoudnessEnhancer(mediaPlayer.audioSessionId).apply {
+                    setTargetGain(HiveSwingLoudnessGainMilliBel)
+                    enabled = true
+                }
+                mediaPlayer.start()
+            }
+        }.getOrNull()
+        try {
+            delay(6.seconds)
+            releaseHiveSwingAudio(player, loudnessEnhancer)
+            player = null
+            loudnessEnhancer = null
+            hiveSwinging = false
+            coroutineScope {
+                launch {
+                    emerge.animateTo(
+                        1f,
+                        tween(durationMillis = BeeEmergeDurationMillis, easing = HivePopEasing),
+                    )
+                }
+                launch {
+                    hiveAlpha.animateTo(
+                        0f,
+                        tween(durationMillis = HiveFadeOutDurationMillis, easing = FastOutSlowInEasing),
+                    )
+                }
+                launch {
+                    hiveScale.animateTo(
+                        0.92f,
+                        tween(durationMillis = HiveFadeOutDurationMillis, easing = FastOutSlowInEasing),
+                    )
+                }
+                launch {
+                    hiveLift.animateTo(
+                        1f,
+                        tween(durationMillis = HiveFadeOutDurationMillis, easing = FastOutSlowInEasing),
+                    )
+                }
+            }
+            welcoming = true
+            coroutineScope {
+                launch {
+                    caption.animateTo(1f, tween(durationMillis = 300, easing = HiveEnterEasing))
+                }
+                launch { delay(WelcomeScreenDuration) }
+            }
+            finish()
+        } finally {
+            releaseHiveSwingAudio(player, loudnessEnhancer)
         }
-        caption.animateTo(1f, tween(durationMillis = 300, easing = HiveEnterEasing))
-        // Welcome clip length. Advance when bee_welcome.json finishes instead of this delay.
-        delay(1180.milliseconds)
-        finish()
     }
 
     val emergeT = emerge.value
-    val beeScale = lerp(0.26f, 1f, emergeT)
-    val beeAlpha = (emergeT * 3.4f).coerceIn(0f, 1f)
+    val beeScale = lerp(0.22f, 1f, emergeT)
+    val beeAlpha = emergeT.coerceIn(0f, 1f)
     Box(
         Modifier
             .fillMaxSize()
@@ -94,13 +178,16 @@ internal fun HiveIntroStep(onFinished: () -> Unit) {
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 enabled = !playing,
-                onClick = { playing = true },
+                onClick = {
+                    playing = true
+                    hiveSwinging = true
+                },
             ),
     ) {
         Box(
             Modifier
                 .align(Alignment.Center)
-                .size(250.dp)
+                .size(400.dp)
                 .graphicsLayer {
                     scaleX = hiveScale.value
                     scaleY = hiveScale.value
@@ -108,58 +195,42 @@ internal fun HiveIntroStep(onFinished: () -> Unit) {
                     translationY = -hiveLift.value * hiveLiftPx
                 },
         ) {
-            // Resting hive: app/src/main/assets/lottie/beehive.json
-            // Swing clip, played once on tap: app/src/main/assets/lottie/beehive_swing.json
-            // Swing sound, started with that clip from the tap effect above:
-            // app/src/main/res/raw/hive_swing.ogg
-            // val context = LocalContext.current
-            // val swingSound = android.media.MediaPlayer.create(context, R.raw.hive_swing)
-            // swingSound.setOnCompletionListener { it.release() }
-            // swingSound.start()
-            // val hiveAsset = if (playing) "lottie/beehive_swing.json" else "lottie/beehive.json"
-            // val hiveComposition by rememberLottieComposition(LottieCompositionSpec.Asset(hiveAsset))
-            // val hiveProgress by animateLottieCompositionAsState(
-            //     composition = hiveComposition,
-            //     iterations = if (playing) 1 else LottieConstants.IterateForever,
-            // )
-            // LottieAnimation(
-            //     composition = hiveComposition,
-            //     progress = { hiveProgress },
-            //     modifier = Modifier.fillMaxSize(),
-            // )
+            LottieAnimation(
+                composition = hiveComposition,
+                progress = { hiveProgress },
+                modifier = Modifier.fillMaxSize(),
+            )
         }
         Box(
             Modifier
                 .align(Alignment.Center)
-                .size(176.dp)
+                .size(280.dp)
                 .graphicsLayer {
-                    translationY = lerp(mouthPx, 0f, emergeT)
+                    translationY = lerp(mouthPx, 0f, emergeT.coerceIn(0f, 1f))
                     scaleX = beeScale
                     scaleY = beeScale
                     alpha = beeAlpha
                 },
         ) {
-            // Welcome clip, played once the bee is centered:
-            // app/src/main/assets/lottie/bee_welcome.json
-            // val welcomeComposition by rememberLottieComposition(
-            //     LottieCompositionSpec.Asset("lottie/bee_welcome.json"),
-            // )
-            // val welcomeProgress by animateLottieCompositionAsState(
-            //     composition = welcomeComposition,
-            //     isPlaying = beeAlpha == 1f,
-            //     iterations = 1,
-            // )
-            // LottieAnimation(
-            //     composition = welcomeComposition,
-            //     progress = { welcomeProgress },
-            //     modifier = Modifier.fillMaxSize(),
-            // )
+            if (welcoming) {
+                LottieAnimation(
+                    composition = welcomeComposition,
+                    progress = { welcomeProgress },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                LottieAnimation(
+                    composition = idleComposition,
+                    progress = { idleProgress },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
         Text(
             text = "You met a new bee!",
             modifier = Modifier
                 .align(Alignment.Center)
-                .offset(y = 128.dp)
+                .offset(y = 176.dp)
                 .graphicsLayer {
                     alpha = caption.value
                     translationY = (1f - caption.value) * captionRisePx
@@ -184,3 +255,17 @@ internal fun HiveIntroStep(onFinished: () -> Unit) {
         )
     }
 }
+
+private fun releaseHiveSwingAudio(
+    player: MediaPlayer?,
+    loudnessEnhancer: LoudnessEnhancer?,
+) {
+    runCatching { loudnessEnhancer?.release() }
+    player?.let { mediaPlayer ->
+        runCatching {
+            if (mediaPlayer.isPlaying) mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+    }
+}
+

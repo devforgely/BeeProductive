@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.devforgely.beeproductive.R
-import com.devforgely.beeproductive.core.components.SkyButton
+import com.devforgely.beeproductive.core.components.SolidButton
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
 private val PronounHe = Color(0xFF3D9BE9)
@@ -68,7 +68,7 @@ internal fun PronounStep(viewModel: OnboardingViewModel) {
             viewModel.pronoun = BeePronoun.THEY
         }
         Spacer(Modifier.height(22.dp))
-        SkyButton(
+        SolidButton(
             text = "Next",
             enabled = viewModel.pronoun != null,
             onClick = { viewModel.step = OnboardingStep.BeeName },

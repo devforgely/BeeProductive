@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.devforgely.beeproductive.R
-import com.devforgely.beeproductive.core.components.SkyButton
+import com.devforgely.beeproductive.core.components.SolidButton
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 import com.devforgely.beeproductive.domain.model.BeePersonality
 
@@ -105,7 +105,7 @@ internal fun TraitStep(viewModel: OnboardingViewModel) {
             Spacer(Modifier.height(8.dp))
         }
         Spacer(Modifier.height(8.dp))
-        SkyButton(
+        SolidButton(
             text = "Next",
             enabled = viewModel.personality != null,
             onClick = { viewModel.step = OnboardingStep.UserName },

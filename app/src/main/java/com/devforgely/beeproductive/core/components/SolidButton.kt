@@ -21,11 +21,11 @@ import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
 private val SkyBlue = Color(0xFF52B4E8)
 private val SkyBlueShadow = Color(0xFF3A8FC4)
-private val SkyButtonShape = RoundedCornerShape(12.dp)
-private val SkyButtonShadowDrop = 4.dp
+private val SolidButtonShape = RoundedCornerShape(12.dp)
+private val SolidButtonShadowDrop = 4.dp
 
 @Composable
-fun SkyButton(
+fun SolidButton(
     text: String,
     enabled: Boolean,
     onClick: () -> Unit,
@@ -36,13 +36,13 @@ fun SkyButton(
 ) {
     val disabledFace = lerp(Color.White, containerColor, 0.45f)
     val lip = if (enabled) shadowColor else lerp(disabledFace, shadowColor, 0.3f)
-    Box(modifier.height(52.dp + SkyButtonShadowDrop)) {
+    Box(modifier.height(52.dp + SolidButtonShadowDrop)) {
         Box(
             Modifier
                 .fillMaxWidth()
                 .height(52.dp)
                 .align(Alignment.BottomCenter)
-                .background(lip, SkyButtonShape),
+                .background(lip, SolidButtonShape),
         )
         Button(
             onClick = onClick,
@@ -51,7 +51,7 @@ fun SkyButton(
                 .fillMaxWidth()
                 .height(52.dp)
                 .align(Alignment.TopCenter),
-            shape = SkyButtonShape,
+            shape = SolidButtonShape,
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 0.dp,
                 pressedElevation = 0.dp,

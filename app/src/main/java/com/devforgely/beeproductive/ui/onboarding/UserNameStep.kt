@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.devforgely.beeproductive.core.components.NameField
-import com.devforgely.beeproductive.core.components.SkyButton
+import com.devforgely.beeproductive.core.components.SolidButton
 import com.devforgely.beeproductive.core.components.SpeechBox
 
 @Composable
@@ -26,7 +26,7 @@ internal fun UserNameStep(viewModel: OnboardingViewModel) {
             onClear = { viewModel.userName = "" },
         )
         Spacer(Modifier.height(16.dp))
-        SkyButton(
+        SolidButton(
             text = "Next",
             enabled = viewModel.userName.trim().length in 2..30,
             onClick = { viewModel.step = OnboardingStep.Support },

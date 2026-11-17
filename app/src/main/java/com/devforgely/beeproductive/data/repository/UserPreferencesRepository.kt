@@ -25,8 +25,7 @@ class UserPreferencesRepository @Inject constructor(
     val prefs: Flow<HivePrefs> = dataStore.data.map { store ->
         HivePrefs(
             dusk = store[UserPreferencesKeys.DUSK_MODE] ?: false,
-            // temporary disable onboarding for testing
-            onboardingComplete = false,
+            onboardingComplete = store[UserPreferencesKeys.ONBOARDING_COMPLETE] ?: false,
             morningNotes = store[UserPreferencesKeys.MORNING_NOTES] ?: true,
             eveningNotes = store[UserPreferencesKeys.EVENING_NOTES] ?: false,
             supporter = store[UserPreferencesKeys.SUPPORTER] ?: false,
