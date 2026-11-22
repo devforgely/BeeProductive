@@ -4,7 +4,7 @@ data class Cosmetic(
     val id: String,
     val name: String,
     val kind: CosmeticKind,
-    val nectarCost: Int,
+    val honeyCost: Int,
 )
 
 object CosmeticCatalog {

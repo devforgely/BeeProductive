@@ -46,6 +46,7 @@ data class HabitEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val cycleId: Long,
     val title: String,
+    val lifeArea: String,
     val active: Boolean,
     val sortOrder: Int,
 )
@@ -77,7 +78,7 @@ data class CheckInEntity(
     tableName = "nectar_ledger",
     indices = [Index("cycleId")],
 )
-data class NectarEntryEntity(
+data class HoneyLedgerEntryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val cycleId: Long,
     val day: String,

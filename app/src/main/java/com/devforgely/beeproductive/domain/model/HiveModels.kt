@@ -4,7 +4,6 @@ enum class LifeArea(val label: String) {
     HEALTH_ENERGY("Health & Energy"),
     MIND_FOCUS("Mind & Focus"),
     WORK_GOALS("Work & Goals"),
-    RELATIONSHIPS("Relationships"),
     CREATIVITY("Creativity"),
     REST("Rest"),
 }
@@ -31,7 +30,7 @@ enum class CycleStage(val label: String, val dayRange: String, val summary: Stri
         "Seeding and momentum. Showing up matters more than perfection.",
     ),
     NECTAR_FLOW(
-        "Nectar Flow",
+        "Honey Flow",
         "Days 31–60",
         "Rhythm and expansion. Longer flights, richer blossoms.",
     ),
@@ -101,7 +100,7 @@ object SupportProducts {
     const val GARDEN = "bee_support_garden"
 
     val catalog = listOf(
-        SupportTier(NECTAR, "A drop of nectar", "A small thank-you for the person who tends this app."),
+        SupportTier(NECTAR, "A drop of honey", "A small thank-you for the person who tends this app."),
         SupportTier(HIVE, "A jar for the keeper", "A warmer gift. The hive stays exactly as free as before."),
         SupportTier(GARDEN, "A whole meadow", "A generous gift that helps the garden keep growing."),
     )

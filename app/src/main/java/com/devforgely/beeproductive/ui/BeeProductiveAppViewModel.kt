@@ -24,7 +24,7 @@ class BeeProductiveAppViewModel @Inject constructor(
     val startRoute = combine(hiveRepository.observe(), preferences.prefs) { snapshot, prefs ->
         when {
             snapshot.bee == null || !prefs.onboardingComplete -> Routes.ONBOARDING
-            else -> Routes.HIVE
+            else -> Routes.HOME
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 }

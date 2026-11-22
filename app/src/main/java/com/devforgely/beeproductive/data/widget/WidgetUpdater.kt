@@ -16,19 +16,19 @@ data class WidgetFace(
     val beeName: String,
     val moodLine: String,
     val fill: Float,
-    val nectar: Int,
+    val honey: Int,
 )
 
 object WidgetKeys {
     val NAME = stringPreferencesKey("widget_bee_name")
     val MOOD = stringPreferencesKey("widget_mood")
     val FILL = floatPreferencesKey("widget_fill")
-    val NECTAR = intPreferencesKey("widget_nectar")
+    val HONEY = intPreferencesKey("widget_honey")
 }
 
 @Singleton
 class WidgetUpdater @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
     suspend fun push(face: WidgetFace) {
         val manager = GlanceAppWidgetManager(context)
@@ -39,7 +39,7 @@ class WidgetUpdater @Inject constructor(
                     this[WidgetKeys.NAME] = face.beeName
                     this[WidgetKeys.MOOD] = face.moodLine
                     this[WidgetKeys.FILL] = face.fill.coerceIn(0f, 1f)
-                    this[WidgetKeys.NECTAR] = face.nectar
+                    this[WidgetKeys.HONEY] = face.honey
                 }
             }
             widget.update(context, glanceId)

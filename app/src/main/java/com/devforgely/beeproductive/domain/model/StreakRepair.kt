@@ -10,7 +10,7 @@ data class HabitLogMark(
 
 data class RepairPlan(
     val day: LocalDate,
-    val nectar: Int,
+    val honey: Int,
 )
 
 data class RepairApplication(
@@ -46,7 +46,7 @@ object StreakRepair {
         if (alreadyRepairedThisStage) return null
         val yesterday = today.minusDays(1)
         if (yesterday in goalDays || yesterday in repairedDays) return null
-        return RepairPlan(day = yesterday, nectar = NectarRules.REPAIR_NECTAR)
+        return RepairPlan(day = yesterday, honey = HoneyRules.REPAIR_HONEY)
     }
 
     fun apply(logs: List<HabitLogMark>, plan: RepairPlan): RepairApplication {

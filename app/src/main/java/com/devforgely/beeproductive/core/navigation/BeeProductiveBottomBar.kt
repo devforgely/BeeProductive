@@ -1,48 +1,78 @@
 package com.devforgely.beeproductive.core.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.devforgely.beeproductive.R
+import com.devforgely.beeproductive.core.theme.NavInk
+import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
-private data class HiveTab(val route: String, val label: String, val icon: ImageVector)
+private data class HiveTab(val route: String, val label: String, val icon: Int)
 
 private val hiveTabs = listOf(
-    HiveTab(Routes.HIVE, "Hive", Icons.Filled.Home),
-    HiveTab(Routes.TODAY, "Today", Icons.Filled.Check),
-    HiveTab(Routes.MEADOW, "Meadow", Icons.Filled.Star),
-    HiveTab(Routes.APIARY, "Apiary", Icons.Filled.Favorite),
+    HiveTab(Routes.HOME, "Home", R.drawable.home),
+    HiveTab(Routes.QUESTS, "Quests", R.drawable.quest),
+    HiveTab(Routes.HIVE, "Hive", R.drawable.hive),
+    HiveTab(Routes.SHOP, "Shop", R.drawable.shop),
+    HiveTab(Routes.BEE, "Bee", R.drawable.bee),
 )
 
 @Composable
 fun BeeProductiveBottomBar(
     currentRoute: String?,
+    beeName: String,
     onNavigate: (String) -> Unit,
 ) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
-    ) {
-        hiveTabs.forEach { tab ->
-            NavigationBarItem(
-                selected = currentRoute == tab.route,
-                onClick = { onNavigate(tab.route) },
-                icon = { Icon(tab.icon, contentDescription = tab.label) },
-                label = { Text(tab.label) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                    indicatorColor = MaterialTheme.colorScheme.primary,
-                ),
-            )
+    Surface(color = NavInk) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(top = 8.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            hiveTabs.forEach { tab ->
+                val selected = currentRoute == tab.route
+                val label = if (tab.route == Routes.BEE) beeName.ifBlank { "Bee" } else tab.label
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .clickable { onNavigate(tab.route) }
+                        .padding(vertical = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Image(
+                        painter = painterResource(tab.icon),
+                        contentDescription = label,
+                        modifier = Modifier.size(28.dp),
+                    )
+                    Text(
+                        text = label,
+                        color = if (selected) Color.White else Color.White.copy(alpha = 0.72f),
+                        fontFamily = RubikFontFamily,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
     }
 }

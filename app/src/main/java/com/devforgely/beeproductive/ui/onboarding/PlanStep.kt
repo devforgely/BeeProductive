@@ -52,7 +52,7 @@ internal fun PlanStep(viewModel: OnboardingViewModel, onFinished: () -> Unit) {
         SolidButton(
             text = "let's do it!",
             enabled = !viewModel.saving,
-            onClick = { viewModel.plant(onFinished) },
+            onClick = { viewModel.buildHive(onFinished) },
         )
     }
 }

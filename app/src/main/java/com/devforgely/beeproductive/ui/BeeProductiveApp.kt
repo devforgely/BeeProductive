@@ -25,25 +25,16 @@ import androidx.navigation.navArgument
 import com.devforgely.beeproductive.core.navigation.BeeProductiveBottomBar
 import com.devforgely.beeproductive.core.navigation.Routes
 import com.devforgely.beeproductive.core.theme.BeeProductiveTheme
-import com.devforgely.beeproductive.domain.model.HarvestChoice
-import com.devforgely.beeproductive.ui.apiary.ApiaryScreen
-import com.devforgely.beeproductive.ui.apiary.HarvestScreen
-import com.devforgely.beeproductive.ui.apiary.InsightsScreen
-import com.devforgely.beeproductive.ui.apiary.NewCycleScreen
-import com.devforgely.beeproductive.ui.apiary.PhaseScreen
-import com.devforgely.beeproductive.ui.apiary.ShopScreen
-import com.devforgely.beeproductive.ui.apiary.WeeklyScreen
+import com.devforgely.beeproductive.ui.bee.BeeScreen
+import com.devforgely.beeproductive.ui.celebrate.CelebrationScreen
+import com.devforgely.beeproductive.ui.focus.FocusScreen
 import com.devforgely.beeproductive.ui.hive.HiveScreen
-import com.devforgely.beeproductive.ui.hive.MeadowScreen
-import com.devforgely.beeproductive.ui.hive.TodayScreen
+import com.devforgely.beeproductive.ui.home.HomeScreen
 import com.devforgely.beeproductive.ui.onboarding.OnboardingScreen
-import com.devforgely.beeproductive.ui.reflect.EveningScreen
-import com.devforgely.beeproductive.ui.reflect.FocusForageScreen
-import com.devforgely.beeproductive.ui.reflect.FocusScreen
-import com.devforgely.beeproductive.ui.reflect.GratitudeScreen
-import com.devforgely.beeproductive.ui.reflect.ReflectScreen
-import com.devforgely.beeproductive.ui.reflect.ReflectionScreen
+import com.devforgely.beeproductive.ui.quest.QuestDetailScreen
+import com.devforgely.beeproductive.ui.quest.QuestListScreen
 import com.devforgely.beeproductive.ui.setting.SettingView
+import com.devforgely.beeproductive.ui.shop.ShopScreen
 import com.devforgely.beeproductive.ui.supporter.SupporterScreen
 
 @Composable
@@ -69,6 +60,8 @@ fun BeeProductiveApp(viewModel: BeeProductiveAppViewModel = hiltViewModel()) {
 @Composable
 private fun HiveNavHost(startRoute: String) {
     val nav = rememberNavController()
+    val hiveViewModel: HiveViewModel = hiltViewModel()
+    val snapshot by hiveViewModel.snapshot.collectAsState()
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route
     val showBar = current in Routes.tabs
@@ -76,7 +69,10 @@ private fun HiveNavHost(startRoute: String) {
         containerColor = Color.Transparent,
         bottomBar = {
             if (showBar) {
-                BeeProductiveBottomBar(current) { route ->
+                BeeProductiveBottomBar(
+                    currentRoute = current,
+                    beeName = snapshot.bee?.name ?: "Bee",
+                ) { route ->
                     nav.navigate(route) {
                         popUpTo(nav.graph.findStartDestination().id) {
                             saveState = true
@@ -95,78 +91,58 @@ private fun HiveNavHost(startRoute: String) {
         ) {
             composable(Routes.ONBOARDING) {
                 OnboardingScreen(onFinished = {
-                    nav.navigate(Routes.HIVE) {
+                    nav.navigate(Routes.HOME) {
                         popUpTo(Routes.ONBOARDING) { inclusive = true }
                     }
                 })
             }
-            composable(Routes.SUPPORTER) {
-                SupporterScreen(onClose = { nav.popBackStack() })
-            }
-            composable(Routes.HIVE) {
-                HiveScreen(
-                    onForage = { nav.navigate(Routes.MEADOW) },
-                    onFocus = { nav.navigate(Routes.FOCUS) },
-                    onReflect = { nav.navigate(Routes.REFLECT) },
-                    onEvening = { nav.navigate(Routes.EVENING) },
-                    onWeekly = { nav.navigate(Routes.WEEKLY) },
-                    onPhase = { day -> nav.navigate(Routes.phase(day)) },
-                    onHarvest = { nav.navigate(Routes.HARVEST) },
-                    onNewCycle = { nav.navigate(Routes.NEW_CYCLE) },
+            composable(Routes.HOME) {
+                HomeScreen(
                     onSettings = { nav.navigate(Routes.SETTINGS) },
-                )
-            }
-            composable(Routes.TODAY) {
-                TodayScreen(onForage = { nav.navigate(Routes.MEADOW) })
-            }
-            composable(Routes.MEADOW) { MeadowScreen() }
-            composable(Routes.APIARY) {
-                ApiaryScreen(
-                    onShop = { nav.navigate(Routes.SHOP) },
-                    onInsights = { nav.navigate(Routes.INSIGHTS) },
-                    onSettings = { nav.navigate(Routes.SETTINGS) },
-                    onSupport = { nav.navigate(Routes.SUPPORTER) },
-                )
-            }
-            composable(Routes.REFLECT) {
-                ReflectScreen(
-                    onReflection = { nav.navigate(Routes.REFLECTION) },
-                    onGratitude = { nav.navigate(Routes.GRATITUDE) },
-                    onEvening = { nav.navigate(Routes.EVENING) },
                     onFocus = { nav.navigate(Routes.FOCUS) },
-                    onFocusForage = { nav.navigate(Routes.FOCUS_FORAGE) },
+                    onCelebrate = { honey, cells ->
+                        nav.navigate(Routes.celebration(honey, cells))
+                    },
                 )
             }
-            composable(Routes.FOCUS) { FocusScreen() }
-            composable(Routes.REFLECTION) { ReflectionScreen() }
-            composable(Routes.GRATITUDE) { GratitudeScreen() }
-            composable(Routes.EVENING) { EveningScreen() }
-            composable(Routes.FOCUS_FORAGE) { FocusForageScreen() }
-            composable(Routes.WEEKLY) { WeeklyScreen() }
+            composable(Routes.QUESTS) {
+                QuestListScreen(onArea = { area -> nav.navigate(Routes.quest(area.name)) })
+            }
             composable(
-                route = Routes.PHASE,
-                arguments = listOf(navArgument("dayMark") { type = NavType.IntType }),
+                route = Routes.QUEST,
+                arguments = listOf(navArgument("area") { type = NavType.StringType }),
             ) { backStack ->
-                PhaseScreen(
-                    dayMark = backStack.arguments?.getInt("dayMark") ?: 30,
+                QuestDetailScreen(
+                    areaName = backStack.arguments?.getString("area").orEmpty(),
+                    onBack = { nav.popBackStack() },
+                )
+            }
+            composable(Routes.HIVE) { HiveScreen() }
+            composable(Routes.SHOP) { ShopScreen() }
+            composable(Routes.BEE) { BeeScreen() }
+            composable(Routes.FOCUS) { FocusScreen(onBack = { nav.popBackStack() }) }
+            composable(
+                route = Routes.CELEBRATION,
+                arguments = listOf(
+                    navArgument("honey") { type = NavType.IntType },
+                    navArgument("cells") { type = NavType.IntType },
+                ),
+            ) { backStack ->
+                CelebrationScreen(
+                    honey = backStack.arguments?.getInt("honey") ?: 0,
+                    cells = backStack.arguments?.getInt("cells") ?: 0,
                     onDone = { nav.popBackStack() },
                 )
             }
-            composable(Routes.HARVEST) {
-                HarvestScreen(onDone = { choice ->
-                    if (choice == HarvestChoice.ARCHIVE) {
-                        nav.navigate(Routes.NEW_CYCLE) {
-                            popUpTo(Routes.HIVE)
-                        }
-                    } else {
-                        nav.popBackStack(Routes.HIVE, inclusive = false)
-                    }
-                })
+            composable(Routes.SETTINGS) {
+                SettingView(
+                    onBack = { nav.popBackStack() },
+                    onSupport = { nav.navigate(Routes.SUPPORTER) },
+                )
             }
-            composable(Routes.SHOP) { ShopScreen() }
-            composable(Routes.INSIGHTS) { InsightsScreen() }
-            composable(Routes.SETTINGS) { SettingView(onSupport = { nav.navigate(Routes.SUPPORTER) }) }
-            composable(Routes.NEW_CYCLE) { NewCycleScreen(onDone = { nav.popBackStack(Routes.HIVE, inclusive = false) }) }
+            composable(Routes.SUPPORTER) {
+                SupporterScreen(onClose = { nav.popBackStack() })
+            }
         }
     }
 }

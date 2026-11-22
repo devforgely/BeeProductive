@@ -43,7 +43,7 @@ private fun HiveWidgetBody(openApp: Intent) {
     val name = prefs[WidgetKeys.NAME] ?: "Your bee"
     val mood = prefs[WidgetKeys.MOOD] ?: "A small action is enough today."
     val fill = ((prefs[WidgetKeys.FILL] ?: 0f) * 100).toInt()
-    val nectar = prefs[WidgetKeys.NECTAR] ?: 0
+    val honey = prefs[WidgetKeys.HONEY] ?: 0
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -67,7 +67,7 @@ private fun HiveWidgetBody(openApp: Intent) {
         )
         Spacer(GlanceModifier.height(8.dp))
         Text(
-            text = "Honeycomb $fill%  ·  $nectar nectar",
+            text = "Honeycomb $fill%  ·  $honey honey",
             style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color(0xFFC9842A))),
         )
     }

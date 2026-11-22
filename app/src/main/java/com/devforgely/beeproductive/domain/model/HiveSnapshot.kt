@@ -24,6 +24,7 @@ data class CycleView(
 data class HabitItem(
     val id: Long,
     val title: String,
+    val area: LifeArea,
     val active: Boolean,
     val doneToday: Boolean,
 )
@@ -64,7 +65,7 @@ data class CheckItem(
     val mood: Mood,
 )
 
-data class NectarItem(
+data class HoneyLedgerItem(
     val cycleId: Long,
     val day: LocalDate,
     val amount: Int,
@@ -85,7 +86,7 @@ data class HiveSnapshot(
     val jars: List<JarItem> = emptyList(),
     val forages: List<ForageItem> = emptyList(),
     val checks: List<CheckItem> = emptyList(),
-    val nectar: List<NectarItem> = emptyList(),
+    val honeyLedger: List<HoneyLedgerItem> = emptyList(),
     val logs: List<LogItem> = emptyList(),
     val ownedIds: Set<String> = emptySet(),
     val repairedDays: Set<LocalDate> = emptySet(),
@@ -97,47 +98,27 @@ data class HiveSnapshot(
 ) {
     val activeHabits: List<HabitItem> get() = habits.filter { it.active }
     val completedToday: Int get() = activeHabits.count { it.doneToday }
-    val dailyGoal: Int get() = NectarRules.dailyGoal(activeHabits.size)
-    val goalMet: Boolean get() = NectarRules.goalMet(completedToday, activeHabits.size)
-    val balance: Int get() = nectar.sumOf { it.amount }.coerceAtLeast(0)
+    val dailyGoal: Int get() = HoneyRules.dailyGoal(activeHabits.size)
+    val goalMet: Boolean get() = HoneyRules.goalMet(completedToday, activeHabits.size)
+    val balance: Int get() = honeyLedger.sumOf { it.amount }.coerceAtLeast(0)
     val earnedThisCycle: Int
         get() {
             val id = cycle?.id ?: return 0
-            return nectar.filter { it.cycleId == id && it.amount > 0 }.sumOf { it.amount }
+            return honeyLedger.filter { it.cycleId == id && it.amount > 0 }.sumOf { it.amount }
         }
-    val todayNectar: Int
+    val todayHoney: Int
         get() {
             val id = cycle?.id ?: return 0
-            return nectar.filter { it.cycleId == id && it.day == today && it.amount > 0 }.sumOf { it.amount }
+            return honeyLedger.filter { it.cycleId == id && it.day == today && it.amount > 0 }.sumOf { it.amount }
         }
     val mood: Mood? get() = checks.firstOrNull { it.day == today }?.mood
     val foragedToday: Boolean get() = forages.any { it.day == today }
     val cells: List<CellVisual>
         get() = cycle?.let { CombModel.cells(earnedThisCycle, it.stage) }.orEmpty()
-    val queenGlow: Float get() = cycle?.let { CombModel.queenGlow(it.dayIndex) } ?: 0.05f
-    val todayFill: Float get() = CombModel.todayFill(todayNectar)
+    val todayFill: Float get() = CombModel.todayFill(todayHoney)
 
     val streak: Int
-        get() {
-            val goal = dailyGoal
-            if (goal == 0) return 0
-            val goalDays = logs
-                .filter { it.completed }
-                .groupBy { it.day }
-                .filterValues { dayLogs -> dayLogs.size >= goal }
-                .keys
-            return StreakCalculator.current(today, goalDays, repairedDays)
-        }
-
-    val ritual: Ritual?
-        get() {
-            val current = cycle ?: return null
-            if (current.harvested) return null
-            if (current.dayIndex >= CycleCalendar.CYCLE_LENGTH) return Ritual.HARVEST
-            if (current.dayIndex >= 30 && 30 !in milestones) return Ritual.PHASE_30
-            if (current.dayIndex >= 60 && 60 !in milestones) return Ritual.PHASE_60
-            return null
-        }
+        get() = StreakCalculator.current(today, goalDays(), repairedDays)
 
     val greeting: String
         get() = HiveCopy.greeting(
@@ -146,7 +127,65 @@ data class HiveSnapshot(
             mood = mood,
             streak = streak,
         )
+
+    val energyShown: Int get() = todayHoney.coerceAtMost(HoneyRules.ENERGY_CAP)
+
+    val questAreas: List<LifeArea>
+        get() = LifeArea.entries.filter { area -> activeHabits.any { it.area == area } }
+
+    fun habitsIn(area: LifeArea): List<HabitItem> = activeHabits.filter { it.area == area }
+
+    fun completionsOn(area: LifeArea, day: LocalDate): Int {
+        val ids = habits.filter { it.area == area }.map { it.id }.toSet()
+        return logs.count { it.completed && it.day == day && it.habitId in ids }
+    }
+
+    fun areaRun(area: LifeArea): Int {
+        val ids = habits.filter { it.area == area }.map { it.id }.toSet()
+        val met = logs.filter { it.completed && it.habitId in ids }.map { it.day }.toSet()
+        return StreakCalculator.current(today, met, emptySet())
+    }
+
+    val weekHoney: Int
+        get() {
+            val id = cycle?.id ?: return 0
+            val start = today.minusDays(6)
+            return honeyLedger
+                .filter { it.cycleId == id && !it.day.isBefore(start) && !it.day.isAfter(today) && it.amount > 0 }
+                .sumOf { it.amount }
+        }
+
+    fun honeyOn(day: LocalDate): Int {
+        val id = cycle?.id ?: return 0
+        return honeyLedger.filter { it.cycleId == id && it.day == day && it.amount > 0 }.sumOf { it.amount }
+    }
+
+    val repairPlan: RepairPlan?
+        get() {
+            val current = cycle ?: return null
+            return StreakRepair.plan(
+                today = today,
+                goalDays = goalDays(),
+                repairedDays = repairedDays,
+                alreadyRepairedThisStage = current.stage in repairedStages,
+            )
+        }
+
+    private fun goalDays(): Set<LocalDate> {
+        val goal = dailyGoal
+        if (goal == 0) return emptySet()
+        return logs
+            .filter { it.completed }
+            .groupBy { it.day }
+            .filterValues { dayLogs -> dayLogs.size >= goal }
+            .keys
+    }
 }
+
+data class PlannedHabit(
+    val title: String,
+    val area: LifeArea,
+)
 
 data class OnboardingDraft(
     val name: String,
@@ -154,7 +193,16 @@ data class OnboardingDraft(
     val area: LifeArea,
     val tone: String,
     val northStar: String,
-    val habits: List<String>,
+    val habits: List<PlannedHabit>,
+    val userName: String,
+    val pronoun: String,
+)
+
+data class GoalCompletion(
+    val saved: Boolean,
+    val honey: Int = 0,
+    val cells: Int = 0,
+    val celebrate: Boolean = false,
 )
 
 data class SupportOffer(

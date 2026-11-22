@@ -16,7 +16,7 @@ import com.devforgely.beeproductive.data.local.entity.HoneyJarEntity
 import com.devforgely.beeproductive.data.local.entity.JournalEntity
 import com.devforgely.beeproductive.data.local.entity.MilestoneEntity
 import com.devforgely.beeproductive.data.local.entity.MiniGoalEntity
-import com.devforgely.beeproductive.data.local.entity.NectarEntryEntity
+import com.devforgely.beeproductive.data.local.entity.HoneyLedgerEntryEntity
 import com.devforgely.beeproductive.data.local.entity.OwnedCosmeticEntity
 import com.devforgely.beeproductive.data.local.entity.StreakRepairEntity
 import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
@@ -66,6 +66,9 @@ interface HiveDao {
     @Query("UPDATE habits SET title = :title WHERE id = :id")
     suspend fun renameHabit(id: Long, title: String)
 
+    @Query("UPDATE habits SET sortOrder = :sortOrder WHERE id = :id")
+    suspend fun updateHabitSort(id: Long, sortOrder: Int)
+
     @Query("UPDATE habits SET active = 0 WHERE id = :id")
     suspend fun retireHabit(id: Long)
 
@@ -85,10 +88,10 @@ interface HiveDao {
     suspend fun upsertCheckIn(checkIn: CheckInEntity)
 
     @Query("SELECT * FROM nectar_ledger")
-    fun observeNectar(): Flow<List<NectarEntryEntity>>
+    fun observeHoneyLedger(): Flow<List<HoneyLedgerEntryEntity>>
 
     @Insert
-    suspend fun insertNectar(entry: NectarEntryEntity)
+    suspend fun insertHoneyLedgerEntry(entry: HoneyLedgerEntryEntity)
 
     @Query("SELECT * FROM forages WHERE cycleId = :cycleId")
     fun observeForages(cycleId: Long): Flow<List<ForageEntity>>

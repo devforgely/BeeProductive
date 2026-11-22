@@ -92,30 +92,6 @@ object LifeAreaTemplates {
             ),
         ),
         template(
-            area = LifeArea.RELATIONSHIPS,
-            northStar = "Be someone the people I love can feel",
-            states = listOf(
-                StateOption("distant", "I've gone quiet", "One small reach-out is enough."),
-                StateOption("rushed", "I'm present, but rushed", "Slow down one conversation."),
-                StateOption("ready", "I want to be more intentional", "Make care a ritual."),
-            ),
-            starters = listOf(
-                "Send one honest note",
-                "Put my phone away for one meal",
-                "Thank someone specifically",
-            ),
-            elevated = listOf(
-                "A weekly unrushed conversation",
-                "Plan one shared moment",
-                "Repair a small tension kindly",
-            ),
-            roadmap = mapOf(
-                CycleStage.POLLINATING to listOf("Daily tiny contact", "Name who matters"),
-                CycleStage.NECTAR_FLOW to listOf("Deeper check-ins", "Shared time on the calendar"),
-                CycleStage.CAPPING to listOf("Care feels mutual", "Repair is practiced"),
-            ),
-        ),
-        template(
             area = LifeArea.CREATIVITY,
             northStar = "Make something small and real, most days",
             states = listOf(

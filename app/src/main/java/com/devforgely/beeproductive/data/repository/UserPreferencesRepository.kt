@@ -16,6 +16,8 @@ data class HivePrefs(
     val eveningNotes: Boolean = false,
     val supporter: Boolean = false,
     val lastSupportProduct: String? = null,
+    val userName: String = "",
+    val pronoun: String = "",
 )
 
 @Singleton
@@ -30,7 +32,14 @@ class UserPreferencesRepository @Inject constructor(
             eveningNotes = store[UserPreferencesKeys.EVENING_NOTES] ?: false,
             supporter = store[UserPreferencesKeys.SUPPORTER] ?: false,
             lastSupportProduct = store[UserPreferencesKeys.LAST_SUPPORT],
+            userName = store[UserPreferencesKeys.USER_NAME].orEmpty(),
+            pronoun = store[UserPreferencesKeys.BEE_PRONOUN].orEmpty(),
         )
+    }
+
+    suspend fun setIdentity(userName: String, pronoun: String) = edit {
+        it[UserPreferencesKeys.USER_NAME] = userName
+        it[UserPreferencesKeys.BEE_PRONOUN] = pronoun
     }
 
     suspend fun setDusk(enabled: Boolean) = edit { it[UserPreferencesKeys.DUSK_MODE] = enabled }

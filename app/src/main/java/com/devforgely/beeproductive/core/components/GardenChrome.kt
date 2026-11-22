@@ -64,22 +64,6 @@ fun MeadowBackground(themeId: String?, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun GardenScaffold(
-    themeId: String?,
-    content: LazyListScope.() -> Unit,
-) {
-    Box(Modifier.fillMaxSize()) {
-        MeadowBackground(themeId)
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-            content = content,
-        )
-    }
-}
-
-@Composable
 fun SoftCard(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -93,32 +77,6 @@ fun SoftCard(
             .padding(18.dp),
     ) {
         content()
-    }
-}
-
-@Composable
-fun SpeechBubble(text: String) {
-    SoftCard {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Composable
-fun StageChip(label: String, range: String) {
-    Row(
-        Modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(label, style = MaterialTheme.typography.labelLarge)
-        Spacer(Modifier.width(8.dp))
-        Text(range, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -146,86 +104,15 @@ fun PrimaryBeeButton(
 @Composable
 fun QuietButton(
     text: String,
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.height(52.dp),
+        modifier = modifier.fillMaxWidth().height(52.dp),
         shape = RoundedCornerShape(28.dp),
     ) {
         Text(text)
-    }
-}
-
-@Composable
-fun MoodRow(selected: Mood?, onSelect: (Mood) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-        Mood.entries.forEach { mood ->
-            val active = mood == selected
-            Text(
-                text = mood.label,
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(CircleShape)
-                    .background(if (active) Amber else MaterialTheme.colorScheme.surface)
-                    .clickable { onSelect(mood) }
-                    .padding(vertical = 10.dp),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
-}
-
-@Composable
-fun HabitCard(
-    title: String,
-    done: Boolean,
-    onComplete: () -> Unit,
-) {
-    var burst by remember(title) { mutableStateOf(done) }
-    val travel by animateFloatAsState(if (burst && done) 1f else 0f, tween(800), label = "nectar")
-    SoftCard {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
-                if (done) {
-                    Text(
-                        "Nectar gathered",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            Box(
-                Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(if (done) Sage else HoneyGold)
-                    .clickable(enabled = !done) {
-                        burst = true
-                        onComplete()
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(if (done) "✓" else "+", color = Cream, style = MaterialTheme.typography.titleLarge)
-            }
-        }
-        if (travel > 0f) {
-            Box(
-                Modifier
-                    .padding(top = 8.dp)
-                    .size(14.dp)
-                    .graphicsLayer {
-                        translationY = -70f * travel
-                        alpha = 1f - travel
-                    }
-                    .clip(CircleShape)
-                    .background(Amber),
-            )
-        }
     }
 }
 

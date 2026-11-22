@@ -9,6 +9,7 @@ import com.devforgely.beeproductive.data.repository.HiveRepository
 import com.devforgely.beeproductive.data.repository.NotificationRepository
 import com.devforgely.beeproductive.data.repository.UserPreferencesRepository
 import com.devforgely.beeproductive.domain.model.ForageOutcome
+import com.devforgely.beeproductive.domain.model.GoalCompletion
 import com.devforgely.beeproductive.domain.model.HabitAddResult
 import com.devforgely.beeproductive.domain.model.HarvestChoice
 import com.devforgely.beeproductive.domain.model.HiveSnapshot
@@ -45,55 +46,21 @@ class HiveViewModel @Inject constructor(
     val offers: StateFlow<OfferLoad> = billing.offers
     val billingEvents = billing.events
 
-    fun checkIn(mood: Mood) = launch { repository.checkIn(mood) }
-
-    fun completeHabit(id: Long, onDone: (Boolean) -> Unit = {}) = launch {
+    fun completeHabit(id: Long, onDone: (GoalCompletion) -> Unit = {}) = launch {
         onDone(repository.completeHabit(id))
-    }
-
-    fun addHabit(title: String, onResult: (HabitAddResult) -> Unit) = launch {
-        onResult(repository.addHabit(title))
     }
 
     fun renameHabit(id: Long, title: String) = launch { repository.renameHabit(id, title) }
 
-    fun retireHabit(id: Long) = launch { repository.retireHabit(id) }
+    fun reorderHabits(orderedIds: List<Long>) = launch { repository.reorderHabits(orderedIds) }
 
-    fun bloomGoal(id: Long) = launch { repository.bloomGoal(id) }
-
-    fun forage(onResult: (ForageOutcome) -> Unit) = launch { onResult(repository.forage()) }
-
-    fun saveJournal(kind: JournalKind, prompt: String, body: String) = launch {
-        repository.saveJournal(kind, prompt, body)
+    fun grantFocusBlock(onGranted: (Boolean) -> Unit = {}) = launch {
+        onGranted(repository.grantFocusBlock())
     }
-
-    fun grantFocus(onGranted: (Boolean) -> Unit) = launch { onGranted(repository.grantFocus()) }
 
     fun repair(onResult: (RepairOutcome) -> Unit) = launch { onResult(repository.repairStreak()) }
 
     fun buy(id: String, onResult: (ShopOutcome) -> Unit) = launch { onResult(repository.buy(id)) }
-
-    fun equip(id: String) = launch { repository.equip(id) }
-
-    fun acknowledgePhase(dayMark: Int, reflection: String, onDone: () -> Unit) = launch {
-        repository.acknowledgePhase(dayMark, reflection)
-        onDone()
-    }
-
-    fun harvest(choice: HarvestChoice, northStar: String, onDone: () -> Unit) = launch {
-        repository.harvest(choice, northStar)
-        onDone()
-    }
-
-    fun plantFresh(northStar: String, area: LifeArea, habits: List<String>, tone: String, onDone: () -> Unit) = launch {
-        repository.plantFreshCycle(northStar, area, habits, tone)
-        onDone()
-    }
-
-    fun saveWeekly(note: String, goal: String) = launch {
-        repository.saveWeeklyNote(note)
-        if (goal.isNotBlank()) repository.addWeeklyGoal(goal)
-    }
 
     fun setDusk(enabled: Boolean) = launch { preferences.setDusk(enabled) }
 
@@ -107,8 +74,6 @@ class HiveViewModel @Inject constructor(
         notifications.applySchedule()
     }
 
-    fun restorePurchases() = launch { billing.refresh() }
-
     fun retryOffers() = launch { billing.refresh() }
 
     fun launchPurchase(activity: Activity, productId: String): Boolean = billing.launch(activity, productId)
@@ -117,5 +82,3 @@ class HiveViewModel @Inject constructor(
         viewModelScope.launch { block() }
     }
 }
-
-typealias HiveBillingEvent = BillingEvent

@@ -108,39 +108,8 @@ object HiveCopy {
         return pool[daySeed.mod(pool.size)]
     }
 
-    fun reflectionPrompts(stage: CycleStage): List<String> {
-        val base = listOf(
-            "What small action felt kind today?",
-            "Where did you show up, even briefly?",
-            "What can tomorrow's first flower be?",
-        )
-        val extra = when (stage) {
-            CycleStage.POLLINATING -> listOf(
-                "What are you still learning to repeat?",
-                "Which expectation can you set down?",
-            )
-            CycleStage.NECTAR_FLOW -> listOf(
-                "Which habit is starting to link to another?",
-                "What rhythm do you want to protect?",
-            )
-            CycleStage.CAPPING -> listOf(
-                "What now feels like yours, not a chore?",
-                "What will you keep after day 90?",
-            )
-        }
-        return base + extra
-    }
-
-    fun gratitudePrompt(): String = "Name one sweet, ordinary thing from today."
-
-    fun focusForageSteps(): List<String> = listOf(
-        "What matters most in the next small stretch?",
-        "What would make that easier to begin?",
-        "What will you do in the first two minutes?",
-    )
-
     fun phaseReflection(dayMark: Int): String = when (dayMark) {
         30 -> "The first comb is in place. What helped you return?"
-        else -> "The nectar is moving. What do you want more of in the next thirty days?"
+        else -> "The honey is moving. What do you want more of in the next thirty days?"
     }
 }

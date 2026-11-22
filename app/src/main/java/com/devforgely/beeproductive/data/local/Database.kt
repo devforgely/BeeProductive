@@ -14,7 +14,7 @@ import com.devforgely.beeproductive.data.local.entity.HoneyJarEntity
 import com.devforgely.beeproductive.data.local.entity.JournalEntity
 import com.devforgely.beeproductive.data.local.entity.MilestoneEntity
 import com.devforgely.beeproductive.data.local.entity.MiniGoalEntity
-import com.devforgely.beeproductive.data.local.entity.NectarEntryEntity
+import com.devforgely.beeproductive.data.local.entity.HoneyLedgerEntryEntity
 import com.devforgely.beeproductive.data.local.entity.OwnedCosmeticEntity
 import com.devforgely.beeproductive.data.local.entity.StreakRepairEntity
 import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
@@ -27,7 +27,7 @@ import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
         HabitEntity::class,
         HabitLogEntity::class,
         CheckInEntity::class,
-        NectarEntryEntity::class,
+        HoneyLedgerEntryEntity::class,
         ForageEntity::class,
         JournalEntity::class,
         WeeklyReviewEntity::class,
@@ -37,7 +37,7 @@ import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
         MilestoneEntity::class,
         FocusGrantEntity::class,
     ],
-    version = 2,
+    version = 4,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

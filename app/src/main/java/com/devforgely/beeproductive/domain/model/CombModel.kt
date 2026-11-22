@@ -14,19 +14,13 @@ object CombModel {
         CycleStage.CAPPING -> 36
     }
 
-    fun ringCount(stage: CycleStage): Int = when (stage) {
-        CycleStage.POLLINATING -> 1
-        CycleStage.NECTAR_FLOW -> 2
-        CycleStage.CAPPING -> 3
-    }
-
-    fun cells(cycleNectar: Int, stage: CycleStage): List<CellVisual> {
+    fun cells(cycleHoney: Int, stage: CycleStage): List<CellVisual> {
         val open = openCellCount(stage)
-        var remaining = cycleNectar.coerceAtLeast(0)
+        var remaining = cycleHoney.coerceAtLeast(0)
         return (0 until open).map { index ->
-            val taken = remaining.coerceAtMost(NectarRules.CELL_CAPACITY)
+            val taken = remaining.coerceAtMost(HoneyRules.CELL_CAPACITY)
             remaining -= taken
-            val fill = taken / NectarRules.CELL_CAPACITY.toFloat()
+            val fill = taken / HoneyRules.CELL_CAPACITY.toFloat()
             val ring = ringFor(index)
             CellVisual(
                 index = index,
@@ -37,9 +31,9 @@ object CombModel {
         }
     }
 
-    fun todayFill(todayNectar: Int): Float {
-        val cap = NectarRules.CELL_CAPACITY * NectarRules.FREE_HABIT_CAP
-        return (todayNectar.coerceAtLeast(0) / cap.toFloat()).coerceIn(0f, 1f)
+    fun todayFill(todayHoney: Int): Float {
+        val cap = HoneyRules.CELL_CAPACITY * HoneyRules.FREE_HABIT_CAP
+        return (todayHoney.coerceAtLeast(0) / cap.toFloat()).coerceIn(0f, 1f)
     }
 
     fun queenGlow(dayIndex: Int): Float =

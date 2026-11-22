@@ -20,6 +20,8 @@ object UserPreferencesKeys {
     val EVENING_NOTES = booleanPreferencesKey("evening_notes")
     val SUPPORTER = booleanPreferencesKey("bee_supporter")
     val LAST_SUPPORT = stringPreferencesKey("last_support_product")
+    val USER_NAME = stringPreferencesKey("user_name")
+    val BEE_PRONOUN = stringPreferencesKey("bee_pronoun")
 }
 
 val Context.userDataStore: DataStore<Preferences> by preferencesDataStore(

@@ -11,6 +11,7 @@ import com.devforgely.beeproductive.domain.model.BeePersonality
 import com.devforgely.beeproductive.domain.model.LifeArea
 import com.devforgely.beeproductive.domain.model.LifeAreaTemplates
 import com.devforgely.beeproductive.domain.model.OnboardingDraft
+import com.devforgely.beeproductive.domain.model.PlannedHabit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,6 +38,7 @@ enum class BeePronoun(val label: String) {
 data class StarterGoal(
     val icon: Int,
     val title: String,
+    val area: LifeArea,
 )
 
 @HiltViewModel
@@ -52,7 +54,6 @@ class OnboardingViewModel @Inject constructor(
     var area by mutableStateOf(LifeArea.MIND_FOCUS)
     var tone by mutableStateOf("Start gently.")
     var northStar by mutableStateOf("")
-    var habits by mutableStateOf<List<String>>(emptyList())
     var starterGoals by mutableStateOf<List<StarterGoal>>(emptyList())
     var saving by mutableStateOf(false)
 
@@ -76,26 +77,27 @@ class OnboardingViewModel @Inject constructor(
             val template = LifeAreaTemplates.forArea(lifeArea)
             val icons = SupportIcons.getValue(lifeArea)
             template.starterHabits.take(perArea).mapIndexed { index, habit ->
-                StarterGoal(icons[index % icons.size], habit)
+                StarterGoal(icons[index % icons.size], habit, lifeArea)
             }
         }
-        habits = starterGoals.map { it.title }
         tone = "Start gently."
     }
 
-    fun plant(onFinished: () -> Unit) {
+    fun buildHive(onFinished: () -> Unit) {
         val chosenTrait = personality ?: return
         if (saving) return
         viewModelScope.launch {
             saving = true
-            repository.plantHive(
+            repository.buildHive(
                 OnboardingDraft(
                     name = name,
                     personality = chosenTrait,
                     area = area,
                     tone = tone,
                     northStar = northStar,
-                    habits = habits,
+                    habits = starterGoals.map { PlannedHabit(it.title, it.area) },
+                    userName = userName.trim(),
+                    pronoun = pronoun?.label.orEmpty(),
                 ),
             )
             saving = false
