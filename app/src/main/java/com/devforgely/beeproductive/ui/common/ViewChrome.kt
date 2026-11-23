@@ -2,6 +2,7 @@ package com.devforgely.beeproductive.ui.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,17 +26,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.devforgely.beeproductive.R
 import com.devforgely.beeproductive.core.theme.Amber
+import com.devforgely.beeproductive.core.theme.CombLine
+import com.devforgely.beeproductive.core.theme.WaxShadow
 
 @Composable
 fun PaperPage(
     modifier: Modifier = Modifier,
-    background: Color = MaterialTheme.colorScheme.background,
+    background: Color = Color.Transparent,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -87,15 +91,23 @@ fun HoneyBalanceChip(amount: Int) {
 fun HoneyPillButton(
     text: String,
     onClick: () -> Unit,
-    enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
+    val shape = RoundedCornerShape(28.dp)
     Box(
         modifier
             .fillMaxWidth()
             .height(56.dp)
-            .clip(RoundedCornerShape(28.dp))
-            .background(if (enabled) Color.White else Color.White.copy(alpha = 0.6f))
+            .shadow(
+                elevation = if (enabled) 8.dp else 0.dp,
+                shape = shape,
+                ambientColor = WaxShadow.copy(alpha = 0.12f),
+                spotColor = WaxShadow.copy(alpha = 0.18f),
+            )
+            .clip(shape)
+            .background(if (enabled) Color.White else Color.White.copy(alpha = 0.72f))
+            .border(1.dp, CombLine.copy(alpha = if (enabled) 0.5f else 0.25f), shape)
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {

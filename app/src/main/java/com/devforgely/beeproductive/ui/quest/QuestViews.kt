@@ -3,6 +3,7 @@ package com.devforgely.beeproductive.ui.quest
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -56,12 +58,16 @@ import androidx.compose.ui.unit.sp
 import com.devforgely.beeproductive.R
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.devforgely.beeproductive.core.components.SoftCard
+import com.devforgely.beeproductive.core.theme.CombLine
 import com.devforgely.beeproductive.core.theme.Cream
+import com.devforgely.beeproductive.core.theme.HiveInk
+import com.devforgely.beeproductive.core.theme.isDuskTheme
 import com.devforgely.beeproductive.core.theme.HoneyGold
 import com.devforgely.beeproductive.core.theme.Ink
 import com.devforgely.beeproductive.core.theme.InkSoft
 import com.devforgely.beeproductive.core.theme.SageDeep
 import com.devforgely.beeproductive.core.theme.Wax
+import com.devforgely.beeproductive.core.theme.WaxShadow
 import com.devforgely.beeproductive.domain.model.HiveSnapshot
 import com.devforgely.beeproductive.domain.model.LifeArea
 import com.devforgely.beeproductive.ui.HiveViewModel
@@ -98,11 +104,19 @@ private fun QuestCard(snapshot: HiveSnapshot, area: LifeArea, onClick: () -> Uni
     val goals = snapshot.habitsIn(area)
     val done = goals.count { it.doneToday }
     val visual = areaVisual(area)
+    val shape = RoundedCornerShape(20.dp)
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .shadow(
+                elevation = 5.dp,
+                shape = shape,
+                ambientColor = WaxShadow.copy(alpha = 0.12f),
+                spotColor = WaxShadow.copy(alpha = 0.16f),
+            )
+            .clip(shape)
             .background(Color.White)
+            .border(1.dp, CombLine.copy(alpha = 0.28f), shape)
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -175,18 +189,25 @@ fun QuestDetailView(
                 Text(
                     text = area.label,
                     modifier = Modifier.padding(start = 12.dp),
-                    color = Color.White,
+                    color = if (isDuskTheme()) Color.White else HiveInk,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.headlineSmall,
                 )
             }
         }
+        val sheet = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp)
         Column(
             Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .fillMaxHeight(0.65f)
-                .clip(RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp))
+                .shadow(
+                    elevation = 16.dp,
+                    shape = sheet,
+                    ambientColor = WaxShadow.copy(alpha = 0.12f),
+                    spotColor = WaxShadow.copy(alpha = 0.18f),
+                )
+                .clip(sheet)
                 .background(Cream)
                 .verticalScroll(rememberScrollState())
                 .padding(start = 18.dp, top = 22.dp, end = 18.dp, bottom = 22.dp + navigationBottom),
@@ -484,9 +505,9 @@ private fun MilestoneMark(reached: Boolean) {
 internal fun GoalHex(
     filled: Boolean,
     color: Color,
-    modifier: Modifier = Modifier.size(18.dp),
+    modifier: Modifier = Modifier,
 ) {
-    Canvas(modifier) {
+    Canvas(modifier.size(18.dp)) {
         val path = hexPath(Offset(size.width / 2f, size.height / 2f), size.minDimension / 2f)
         drawPath(
             path = path,

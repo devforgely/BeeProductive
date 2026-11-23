@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 12 324 470" width="324" height="470">
+<title>Hive door</title>
+<defs>
+<clipPath id="door-frame"><path d="M22.00 412.75V166.0A138.0 138.0 0 0 1 298.00 166.0V446.64Q160.00 424.58 22.00 412.75Z"/></clipPath>
+<clipPath id="door-face"><path d="M42.00 398.52V168.0A118.0 118.0 0 0 1 278.00 168.0V427.49Q160.00 409.27 42.00 398.52Z"/></clipPath>
+<clipPath id="door-seams"><path d="M42.00 398.52V168.0A118.0 118.0 0 0 1 278.00 168.0V427.49Q160.00 409.27 42.00 398.52Z"/></clipPath>
+<clipPath id="door-glass"><polygon points="160.00,123.00 205.03,149.00 205.03,201.00 160.00,227.00 114.97,201.00 114.97,149.00" fill="none"/></clipPath>
+<clipPath id="door-knob"><circle cx="238" cy="300" r="13"/></clipPath>
+</defs>
+<path d="M14.00 404.07Q160.00 416.28 306.00 439.93L306.00 465.93Q160.00 442.28 14.00 430.07Z" fill="#9A5A22"/><path d="M14.00 420.07Q160.00 432.28 306.00 455.93L306.00 465.93Q160.00 442.28 14.00 430.07Z" fill="#7A4A26"/>
+<path d="M22.00 412.75V166.0A138.0 138.0 0 0 1 298.00 166.0V446.64Q160.00 424.58 22.00 412.75Z" fill="#B8722F"/>
+<g clip-path="url(#door-frame)"><path d="M14.00 376.07Q160.00 388.28 306.00 411.93L306.00 485.93L14.00 450.07Z" fill="#9A5A22"/></g>
+<path d="M42.00 398.52V168.0A118.0 118.0 0 0 1 278.00 168.0V427.49Q160.00 409.27 42.00 398.52Z" fill="#E3A94A"/>
+<g clip-path="url(#door-face)"><path d="M42.0 280.0L42.0 447.5H278.0V280.0Q160.0 255.0 42.0 280.0Z" fill="#D08932"/></g>
+<g clip-path="url(#door-seams)"><rect x="117.5" y="176.0" width="5" height="271.5" rx="2.5" fill="#C9823A"/><rect x="197.5" y="176.0" width="5" height="271.5" rx="2.5" fill="#C9823A"/></g>
+<polygon points="160.00,115.00 211.96,145.00 211.96,205.00 160.00,235.00 108.04,205.00 108.04,145.00" fill="#B8722F" stroke="#B8722F" stroke-width="6" stroke-linejoin="round"/>
+<polygon points="160.00,123.00 205.03,149.00 205.03,201.00 160.00,227.00 114.97,201.00 114.97,149.00" fill="#B4DAEC"/><g clip-path="url(#door-glass)"><g transform="rotate(45 160.0 175.0)"><rect x="66.4" y="149.9" width="187.2" height="12.6" fill="#D6EEF8"/><rect x="66.4" y="187.5" width="187.2" height="12.6" fill="#D6EEF8"/></g><polygon points="160.00,125.40 202.95,150.20 202.95,199.80 160.00,224.60 117.05,199.80 117.05,150.20" fill="none" stroke="#9CC7DB" stroke-width="4" stroke-linejoin="round"/><path d="M160.0 123.0V227.0" stroke="#9CC7DB" stroke-width="4" stroke-linecap="butt" fill="none"/><path d="M108.0 175.0H212.0" stroke="#9CC7DB" stroke-width="4" stroke-linecap="butt" fill="none"/></g>
+<circle cx="238" cy="300" r="13" fill="#7A4A26"/>
+<g clip-path="url(#door-knob)"><ellipse cx="239" cy="305" rx="12" ry="10" fill="#5A3218"/></g>
+</svg>

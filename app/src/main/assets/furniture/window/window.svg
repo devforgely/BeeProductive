@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30.5 18 339 384" width="339" height="384">
+<title>Hive window</title>
+<defs>
+<clipPath id="win-glass"><polygon points="200.00,70.00 321.24,140.00 321.24,280.00 200.00,350.00 78.76,280.00 78.76,140.00" fill="none"/></clipPath>
+</defs>
+<polygon points="200.00,42.00 345.49,126.00 345.49,294.00 200.00,378.00 54.51,294.00 54.51,126.00" fill="#B8722F" stroke="#B8722F" stroke-width="16" stroke-linejoin="round"/>
+<polygon points="200.00,62.00 328.17,136.00 328.17,284.00 200.00,358.00 71.83,284.00 71.83,136.00" fill="#D28C41" stroke="#D28C41" stroke-width="8" stroke-linejoin="round"/>
+<polygon points="200.00,70.00 321.24,140.00 321.24,280.00 200.00,350.00 78.76,280.00 78.76,140.00" fill="#B4DAEC"/><g clip-path="url(#win-glass)"><g transform="rotate(45 200.0 210.0)"><rect x="-52.0" y="142.3" width="504.0" height="33.9" fill="#D6EEF8"/><rect x="-52.0" y="243.8" width="504.0" height="33.9" fill="#D6EEF8"/></g><polygon points="200.00,73.90 317.87,141.95 317.87,278.05 200.00,346.10 82.13,278.05 82.13,141.95" fill="none" stroke="#9CC7DB" stroke-width="7" stroke-linejoin="round"/><path d="M200.0 70.0V350.0" stroke="#9CC7DB" stroke-width="7" stroke-linecap="butt" fill="none"/><path d="M60.0 210.0H340.0" stroke="#9CC7DB" stroke-width="7" stroke-linecap="butt" fill="none"/></g>
+</svg>

@@ -37,7 +37,7 @@ import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
         MilestoneEntity::class,
         FocusGrantEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

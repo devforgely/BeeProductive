@@ -20,8 +20,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.devforgely.beeproductive.R
-import com.devforgely.beeproductive.core.theme.NavBar
+import com.devforgely.beeproductive.core.theme.DuskSurface
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
+import com.devforgely.beeproductive.core.theme.isDuskTheme
 
 private data class HiveTab(val route: String, val label: String, val icon: Int)
 
@@ -39,7 +40,8 @@ fun BeeProductiveBottomBar(
     beeName: String,
     onNavigate: (String) -> Unit,
 ) {
-    Surface(color = NavBar) {
+    val night = isDuskTheme()
+    Surface(color = if (night) DuskSurface else Color(0xFFD19315)) {
         Row(
             Modifier
                 .fillMaxWidth()
@@ -49,7 +51,7 @@ fun BeeProductiveBottomBar(
         ) {
             hiveTabs.forEach { tab ->
                 val selected = currentRoute == tab.route
-                val label = if (tab.route == Routes.BEE) beeName.ifBlank { "Bee" } else tab.label
+                val title = if (tab.route == Routes.BEE) beeName.ifBlank { "Bee" } else tab.label
                 Column(
                     Modifier
                         .weight(1f)
@@ -58,11 +60,11 @@ fun BeeProductiveBottomBar(
                 ) {
                     Image(
                         painter = painterResource(tab.icon),
-                        contentDescription = label,
+                        contentDescription = title,
                         modifier = Modifier.size(36.dp),
                     )
                     Text(
-                        text = label,
+                        text = title,
                         color = if (selected) Color.White else Color.White.copy(alpha = 0.72f),
                         fontFamily = RubikFontFamily,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,

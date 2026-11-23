@@ -12,6 +12,8 @@ data class BeeProfileEntity(
     val outfitId: String?,
     val decorationId: String?,
     val themeId: String?,
+    val wallpaperId: String? = null,
+    val flooringId: String? = null,
 )
 
 @Entity(tableName = "cycles")

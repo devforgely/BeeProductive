@@ -10,20 +10,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.devforgely.beeproductive.core.theme.WaxShadow
 
 @Composable
 fun SoftCard(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    val shape = RoundedCornerShape(28.dp)
     Column(
         modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
+            .shadow(
+                elevation = 5.dp,
+                shape = shape,
+                ambientColor = WaxShadow.copy(alpha = 0.1f),
+                spotColor = WaxShadow.copy(alpha = 0.14f),
+            )
+            .clip(shape)
             .background(Color.White)
-            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f), RoundedCornerShape(28.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f), shape)
             .padding(18.dp),
     ) {
         content()

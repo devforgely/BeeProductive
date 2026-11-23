@@ -17,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -29,6 +31,7 @@ import androidx.navigation.navArgument
 import com.devforgely.beeproductive.core.navigation.BeeProductiveBottomBar
 import com.devforgely.beeproductive.core.navigation.Routes
 import com.devforgely.beeproductive.core.theme.BeeProductiveTheme
+import com.devforgely.beeproductive.core.theme.HiveBackdrop
 import com.devforgely.beeproductive.core.theme.SettingsBackground
 import com.devforgely.beeproductive.core.theme.SupporterPurple
 import com.devforgely.beeproductive.ui.bee.BeeView
@@ -70,7 +73,7 @@ private fun HiveNavHost(startRoute: String) {
     val snapshot by hiveViewModel.snapshot.collectAsState()
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route
-    val showBar = current in Routes.tabs
+    val showBar = current in Routes.tabs && current != Routes.SHOP
     val openSupporter = remember(nav) {
         {
             nav.navigate(Routes.SUPPORTER) {
@@ -78,97 +81,136 @@ private fun HiveNavHost(startRoute: String) {
             }
         }
     }
-    Scaffold(
-        containerColor = when (current) {
-            Routes.SETTINGS -> SettingsBackground
-            Routes.SUPPORTER -> SupporterPurple
-            else -> MaterialTheme.colorScheme.background
-        },
-        bottomBar = {
-            if (showBar) {
-                BeeProductiveBottomBar(
-                    currentRoute = current,
-                    beeName = snapshot.bee?.name ?: "Bee",
-                ) { route ->
-                    nav.navigate(route) {
-                        popUpTo(nav.graph.findStartDestination().id) {
-                            saveState = true
+    HiveBackdrop {
+        Scaffold(
+            containerColor = when (current) {
+                Routes.SETTINGS -> SettingsBackground
+                Routes.SUPPORTER -> SupporterPurple
+                Routes.ONBOARDING -> Color.White
+                else -> Color.Transparent
+            },
+            contentColor = when (current) {
+                Routes.SUPPORTER -> Color.White
+                else -> MaterialTheme.colorScheme.onBackground
+            },
+            bottomBar = {
+                if (showBar) {
+                    BeeProductiveBottomBar(
+                        currentRoute = current,
+                        beeName = snapshot.bee?.name ?: "Bee",
+                    ) { route ->
+                        nav.navigate(route) {
+                            popUpTo(nav.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
                 }
-            }
-        },
-    ) { padding ->
-        val layoutDirection = LocalLayoutDirection.current
-        val hostPadding = if (current == Routes.QUEST) {
-            PaddingValues(
+            },
+        ) { padding ->
+            val layoutDirection = LocalLayoutDirection.current
+        val hostPadding = when (current) {
+            Routes.QUEST -> PaddingValues(
                 start = padding.calculateStartPadding(layoutDirection),
                 top = padding.calculateTopPadding(),
                 end = padding.calculateEndPadding(layoutDirection),
             )
-        } else {
-            padding
+            Routes.HOME -> PaddingValues(
+                start = padding.calculateStartPadding(layoutDirection),
+                top = 0.dp,
+                end = padding.calculateEndPadding(layoutDirection),
+                bottom = padding.calculateBottomPadding(),
+            )
+            Routes.SHOP -> PaddingValues(
+                start = padding.calculateStartPadding(layoutDirection),
+                top = 0.dp,
+                end = padding.calculateEndPadding(layoutDirection),
+                bottom = 0.dp,
+            )
+            Routes.CELEBRATION -> PaddingValues(
+                start = padding.calculateStartPadding(layoutDirection),
+                top = 0.dp,
+                end = padding.calculateEndPadding(layoutDirection),
+                bottom = 0.dp,
+            )
+            else -> padding
         }
-        NavHost(
-            navController = nav,
-            startDestination = startRoute,
-            modifier = Modifier.padding(hostPadding),
-        ) {
-            composable(Routes.ONBOARDING) {
-                OnboardingView(onFinished = {
-                    nav.navigate(Routes.HOME) {
-                        popUpTo(Routes.ONBOARDING) { inclusive = true }
-                    }
-                })
-            }
-            composable(Routes.HOME) {
-                HomeView(
-                    onSettings = { nav.navigate(Routes.SETTINGS) },
-                    onFocus = { nav.navigate(Routes.FOCUS) },
-                    onCelebrate = { honey, cells ->
-                        nav.navigate(Routes.celebration(honey, cells))
-                    },
-                )
-            }
-            composable(Routes.QUESTS) {
-                QuestListView(onArea = { area -> nav.navigate(Routes.quest(area.name)) })
-            }
-            composable(
-                route = Routes.QUEST,
-                arguments = listOf(navArgument("area") { type = NavType.StringType }),
-            ) { backStack ->
-                QuestDetailView(
-                    areaName = backStack.arguments?.getString("area").orEmpty(),
-                    onBack = { nav.popBackStack() },
-                )
-            }
-            composable(Routes.HIVE) { HiveView() }
-            composable(Routes.SHOP) { ShopView() }
-            composable(Routes.BEE) { BeeView() }
-            composable(Routes.FOCUS) { FocusView(onBack = { nav.popBackStack() }) }
-            composable(
-                route = Routes.CELEBRATION,
-                arguments = listOf(
-                    navArgument("honey") { type = NavType.IntType },
-                    navArgument("cells") { type = NavType.IntType },
-                ),
-            ) { backStack ->
-                CelebrationView(
-                    honey = backStack.arguments?.getInt("honey") ?: 0,
-                    cells = backStack.arguments?.getInt("cells") ?: 0,
-                    onDone = { nav.popBackStack() },
-                )
-            }
-            composable(Routes.SETTINGS) {
-                SettingView(
-                    onBack = { nav.popBackStack() },
-                    onSupport = openSupporter,
-                )
-            }
-            composable(Routes.SUPPORTER) {
-                SupporterView(onClose = { nav.popBackStack() })
+            NavHost(
+                navController = nav,
+                startDestination = startRoute,
+                modifier = Modifier.padding(hostPadding),
+            ) {
+                composable(Routes.ONBOARDING) {
+                    OnboardingView(onFinished = {
+                        nav.navigate(Routes.HOME) {
+                            popUpTo(Routes.ONBOARDING) { inclusive = true }
+                        }
+                    })
+                }
+                composable(Routes.HOME) {
+                    HomeView(
+                        onSettings = { nav.navigate(Routes.SETTINGS) },
+                        onFocus = { nav.navigate(Routes.FOCUS) },
+                        onCelebrate = { honey, cells ->
+                            nav.navigate(Routes.celebration(honey, cells))
+                        },
+                    )
+                }
+                composable(Routes.QUESTS) {
+                    QuestListView(onArea = { area -> nav.navigate(Routes.quest(area.name)) })
+                }
+                composable(
+                    route = Routes.QUEST,
+                    arguments = listOf(navArgument("area") { type = NavType.StringType }),
+                ) { backStack ->
+                    QuestDetailView(
+                        areaName = backStack.arguments?.getString("area").orEmpty(),
+                        onBack = { nav.popBackStack() },
+                    )
+                }
+                composable(Routes.HIVE) { HiveView() }
+                composable(Routes.SHOP) {
+                    ShopView(
+                        onClose = {
+                            nav.navigate(Routes.HOME) {
+                                popUpTo(nav.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        onSupport = openSupporter,
+                        bottomInset = padding.calculateBottomPadding(),
+                    )
+                }
+                composable(Routes.BEE) { BeeView() }
+                composable(Routes.FOCUS) { FocusView(onBack = { nav.popBackStack() }) }
+                composable(
+                    route = Routes.CELEBRATION,
+                    arguments = listOf(
+                        navArgument("honey") { type = NavType.IntType },
+                        navArgument("cells") { type = NavType.IntType },
+                    ),
+                ) { backStack ->
+                    CelebrationView(
+                        honey = backStack.arguments?.getInt("honey") ?: 0,
+                        cells = backStack.arguments?.getInt("cells") ?: 0,
+                        onDone = { nav.popBackStack() },
+                        viewModel = hiveViewModel,
+                    )
+                }
+                composable(Routes.SETTINGS) {
+                    SettingView(
+                        onBack = { nav.popBackStack() },
+                        onSupport = openSupporter,
+                    )
+                }
+                composable(Routes.SUPPORTER) {
+                    SupporterView(onClose = { nav.popBackStack() })
+                }
             }
         }
     }

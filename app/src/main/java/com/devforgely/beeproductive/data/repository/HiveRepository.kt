@@ -2,25 +2,18 @@ package com.devforgely.beeproductive.data.repository
 
 import com.devforgely.beeproductive.data.local.dao.HiveDao
 import com.devforgely.beeproductive.data.local.entity.BeeProfileEntity
-import com.devforgely.beeproductive.data.local.entity.CheckInEntity
 import com.devforgely.beeproductive.data.local.entity.CycleEntity
 import com.devforgely.beeproductive.data.local.entity.FocusGrantEntity
 import com.devforgely.beeproductive.data.local.entity.ForageEntity
 import com.devforgely.beeproductive.data.local.entity.HabitEntity
 import com.devforgely.beeproductive.data.local.entity.HabitLogEntity
-import com.devforgely.beeproductive.data.local.entity.HoneyJarEntity
 import com.devforgely.beeproductive.data.local.entity.HoneyLedgerEntryEntity
-import com.devforgely.beeproductive.data.local.entity.JournalEntity
 import com.devforgely.beeproductive.data.local.entity.MilestoneEntity
 import com.devforgely.beeproductive.data.local.entity.MiniGoalEntity
 import com.devforgely.beeproductive.data.local.entity.OwnedCosmeticEntity
 import com.devforgely.beeproductive.data.local.entity.StreakRepairEntity
-import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
-import com.devforgely.beeproductive.data.widget.WidgetFace
-import com.devforgely.beeproductive.data.widget.WidgetUpdater
 import com.devforgely.beeproductive.domain.model.BeePersonality
 import com.devforgely.beeproductive.domain.model.BeeProfile
-import com.devforgely.beeproductive.domain.model.CheckItem
 import com.devforgely.beeproductive.domain.model.CosmeticCatalog
 import com.devforgely.beeproductive.domain.model.CosmeticKind
 import com.devforgely.beeproductive.domain.model.CycleCalendar
@@ -28,36 +21,26 @@ import com.devforgely.beeproductive.domain.model.CycleStage
 import com.devforgely.beeproductive.domain.model.CycleStatus
 import com.devforgely.beeproductive.domain.model.CycleView
 import com.devforgely.beeproductive.domain.model.ForageItem
-import com.devforgely.beeproductive.domain.model.ForageRewardKind
 import com.devforgely.beeproductive.domain.model.GoalCompletion
-import com.devforgely.beeproductive.domain.model.GoalItem
 import com.devforgely.beeproductive.domain.model.HabitAddResult
 import com.devforgely.beeproductive.domain.model.HabitItem
 import com.devforgely.beeproductive.domain.model.HiveSnapshot
 import com.devforgely.beeproductive.domain.model.HoneyLedgerItem
 import com.devforgely.beeproductive.domain.model.HoneyRules
-import com.devforgely.beeproductive.domain.model.JarItem
-import com.devforgely.beeproductive.domain.model.JournalItem
-import com.devforgely.beeproductive.domain.model.JournalKind
 import com.devforgely.beeproductive.domain.model.LifeArea
 import com.devforgely.beeproductive.domain.model.LifeAreaTemplate
 import com.devforgely.beeproductive.domain.model.LifeAreaTemplates
 import com.devforgely.beeproductive.domain.model.LogItem
-import com.devforgely.beeproductive.domain.model.Mood
 import com.devforgely.beeproductive.domain.model.OnboardingDraft
 import com.devforgely.beeproductive.domain.model.PlannedHabit
 import com.devforgely.beeproductive.domain.model.RepairOutcome
 import com.devforgely.beeproductive.domain.model.ShopOutcome
 import com.devforgely.beeproductive.domain.model.StreakRepair
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -67,41 +50,21 @@ class HiveRepository @Inject constructor(
     private val dao: HiveDao,
     private val preferences: UserPreferencesRepository,
     private val notifications: NotificationRepository,
-    private val widgetUpdater: WidgetUpdater,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    init {
-        scope.launch {
-            observe().collect { snapshot ->
-                widgetUpdater.push(
-                    WidgetFace(
-                        beeName = snapshot.bee?.name ?: "Your bee",
-                        moodLine = snapshot.greeting,
-                        fill = snapshot.todayFill,
-                        honey = snapshot.balance,
-                    ),
-                )
-            }
-        }
-    }
-
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun observe(): Flow<HiveSnapshot> {
         val core = combine(
             dao.observeBee(),
             dao.observeActiveCycle(),
-            dao.observeJars(),
             dao.observeHoneyLedger(),
             dao.observeOwned(),
-        ) { bee, cycle, jars, honeyLedger, owned ->
-            CoreHeader(bee, cycle, jars, honeyLedger, owned.map { it.cosmeticId }.toSet())
+        ) { bee, cycle, honeyLedger, owned ->
+            CoreHeader(bee, cycle, honeyLedger, owned.map { it.cosmeticId }.toSet())
         }
         return core.flatMapLatest { coreHeader ->
             val header = Header(
                 coreHeader.bee,
                 coreHeader.cycle,
-                coreHeader.jars,
                 coreHeader.honeyLedger,
                 coreHeader.owned,
             )
@@ -110,25 +73,18 @@ class HiveRepository @Inject constructor(
             if (cycle == null) {
                 flowOf(header.toSnapshot(today))
             } else {
-                val day = CycleCalendar.dayIndex(LocalDate.parse(cycle.startDate), today)
-                val week = CycleCalendar.weekIndex(day)
                 combine(
                     dao.observeHabits(cycle.id),
                     dao.observeLogs(cycle.id),
-                    dao.observeGoals(cycle.id),
-                    dao.observeCheckIns(cycle.id),
                     dao.observeForages(cycle.id),
-                ) { habits, logs, goals, checks, forages ->
-                    CycleChunk(habits, logs, goals, checks, forages)
+                ) { habits, logs, forages ->
+                    CycleChunk(habits, logs, forages)
                 }.combine(
                     combine(
-                        dao.observeJournals(cycle.id),
-                        dao.observeWeekly(cycle.id, week),
                         dao.observeRepairs(cycle.id),
                         dao.observeMilestones(cycle.id),
-                        dao.observeFocusCount(cycle.id, today.toString()),
-                    ) { journals, weekly, repairs, milestones, focusCount ->
-                        ExtraChunk(journals, weekly, repairs, milestones, focusCount > 0)
+                    ) { repairs, milestones ->
+                        ExtraChunk(repairs, milestones)
                     },
                 ) { chunk, extra ->
                     header.toSnapshot(today, chunk, extra)
@@ -147,6 +103,8 @@ class HiveRepository @Inject constructor(
                 outfitId = null,
                 decorationId = null,
                 themeId = null,
+                wallpaperId = null,
+                flooringId = null,
             ),
         )
         val cycleId = insertActiveCycle(
@@ -288,6 +246,8 @@ class HiveRepository @Inject constructor(
             CosmeticKind.OUTFIT -> bee.copy(outfitId = item.id)
             CosmeticKind.DECORATION -> bee.copy(decorationId = item.id)
             CosmeticKind.THEME -> bee.copy(themeId = item.id)
+            CosmeticKind.WALLPAPER -> bee.copy(wallpaperId = item.id)
+            CosmeticKind.FLOORING -> bee.copy(flooringId = item.id)
         }
         dao.upsertBee(updated)
     }
@@ -361,7 +321,6 @@ class HiveRepository @Inject constructor(
 private data class CoreHeader(
     val bee: BeeProfileEntity?,
     val cycle: CycleEntity?,
-    val jars: List<HoneyJarEntity>,
     val honeyLedger: List<HoneyLedgerEntryEntity>,
     val owned: Set<String>,
 )
@@ -369,7 +328,6 @@ private data class CoreHeader(
 private data class Header(
     val bee: BeeProfileEntity?,
     val cycle: CycleEntity?,
-    val jars: List<HoneyJarEntity>,
     val honeyLedger: List<HoneyLedgerEntryEntity>,
     val owned: Set<String>,
 )
@@ -377,17 +335,12 @@ private data class Header(
 private data class CycleChunk(
     val habits: List<HabitEntity>,
     val logs: List<HabitLogEntity>,
-    val goals: List<MiniGoalEntity>,
-    val checks: List<CheckInEntity>,
     val forages: List<ForageEntity>,
 )
 
 private data class ExtraChunk(
-    val journals: List<JournalEntity>,
-    val weekly: WeeklyReviewEntity?,
     val repairs: List<StreakRepairEntity>,
     val milestones: List<MilestoneEntity>,
-    val focusGranted: Boolean,
 )
 
 private fun Header.toSnapshot(
@@ -400,13 +353,9 @@ private fun Header.toSnapshot(
         val day = CycleCalendar.dayIndex(start, today)
         CycleView(
             id = entity.id,
-            northStar = entity.northStar,
             lifeArea = LifeArea.valueOf(entity.lifeArea),
-            themeNote = entity.themeNote,
-            startDate = start,
             dayIndex = day,
             stage = CycleCalendar.stage(day),
-            harvested = entity.harvested,
         )
     }
     val logs = chunk?.logs.orEmpty().map {
@@ -421,6 +370,8 @@ private fun Header.toSnapshot(
                 outfitId = it.outfitId,
                 decorationId = it.decorationId,
                 themeId = it.themeId,
+                wallpaperId = it.wallpaperId,
+                flooringId = it.flooringId,
             )
         },
         cycle = cycleView,
@@ -436,38 +387,8 @@ private fun Header.toSnapshot(
                 doneToday = it.id in doneToday,
             )
         },
-        goals = chunk?.goals.orEmpty().map { goal ->
-            val stage = CycleStage.valueOf(goal.stage)
-            GoalItem(
-                id = goal.id,
-                title = goal.title,
-                stage = stage,
-                bloomed = goal.bloomed,
-                weekly = goal.weekly,
-            )
-        },
-        journals = extra?.journals.orEmpty().map {
-            JournalItem(
-                id = it.id,
-                day = LocalDate.parse(it.day),
-                kind = JournalKind.valueOf(it.kind),
-                prompt = it.prompt,
-                body = it.body,
-            )
-        },
-        jars = jars.map {
-            JarItem(it.id, it.title, it.subtitle, it.kind, it.dayMark)
-        },
         forages = chunk?.forages.orEmpty().map {
-            ForageItem(
-                day = LocalDate.parse(it.day),
-                kind = ForageRewardKind.valueOf(it.rewardKind),
-                title = it.title,
-                body = it.body,
-            )
-        },
-        checks = chunk?.checks.orEmpty().map {
-            CheckItem(LocalDate.parse(it.day), Mood.valueOf(it.mood))
+            ForageItem(day = LocalDate.parse(it.day))
         },
         honeyLedger = honeyLedger.map {
             HoneyLedgerItem(it.cycleId, LocalDate.parse(it.day), it.amount)
@@ -477,8 +398,6 @@ private fun Header.toSnapshot(
         repairedDays = extra?.repairs.orEmpty().map { LocalDate.parse(it.day) }.toSet(),
         repairedStages = extra?.repairs.orEmpty().map { CycleStage.valueOf(it.stage) }.toSet(),
         milestones = extra?.milestones.orEmpty().map { it.dayMark }.toSet(),
-        focusGrantedToday = extra?.focusGranted == true,
-        weeklyNote = extra?.weekly?.note,
         today = today,
     )
 }

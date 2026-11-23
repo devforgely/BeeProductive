@@ -17,28 +17,10 @@ enum class BeePersonality(val label: String, val blurb: String) {
     CONFIDENT("Confident", "Bright flight, steady heart."),
 }
 
-enum class Mood(val label: String) {
-    LOW("Low"),
-    STEADY("Steady"),
-    BRIGHT("Bright"),
-}
-
-enum class CycleStage(val label: String, val dayRange: String, val summary: String) {
-    POLLINATING(
-        "Pollinating",
-        "Days 1–30",
-        "Seeding and momentum. Showing up matters more than perfection.",
-    ),
-    NECTAR_FLOW(
-        "Honey Flow",
-        "Days 31–60",
-        "Rhythm and expansion. Longer flights, richer blossoms.",
-    ),
-    CAPPING(
-        "Capping",
-        "Days 61–90",
-        "Mastery and refinement. Full cells are sealed in gold.",
-    ),
+enum class CycleStage(val label: String) {
+    POLLINATING("Pollinating"),
+    NECTAR_FLOW("Honey Flow"),
+    CAPPING("Capping"),
 }
 
 enum class CycleStatus {
@@ -54,31 +36,12 @@ enum class HarvestChoice {
     PIVOT,
 }
 
-enum class JournalKind {
-    REFLECTION,
-    GRATITUDE,
-    EVENING,
-    FOCUS_FORAGE,
-    PHASE,
-}
-
 enum class CosmeticKind {
     OUTFIT,
     THEME,
     DECORATION,
-}
-
-enum class ForageRewardKind {
-    INSIGHT,
-    STORY,
-    COSMETIC,
-}
-
-enum class BeeClip {
-    IDLE,
-    FLUTTER,
-    CELEBRATE,
-    FORAGE,
+    WALLPAPER,
+    FLOORING,
 }
 
 data class SupportTier(

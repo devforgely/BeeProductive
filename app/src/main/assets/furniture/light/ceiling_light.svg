@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="44 -8 232 216" width="232" height="216">
+<title>Honey dome pendant lamp</title>
+<defs>
+<clipPath id="lamp-shade"><path d="M60.0 192.0A100.0 92.0 0 0 1 260.0 192.0Z"/></clipPath>
+</defs>
+<rect x="156.5" y="-8" width="7" height="102" rx="3.5" fill="#5A3A28"/>
+<path d="M60.0 192.0A100.0 92.0 0 0 1 260.0 192.0Z" fill="#E8A83A"/>
+<g clip-path="url(#lamp-shade)"><rect x="58.0" y="164.4" width="204.0" height="3.7" fill="#D0891C"/><rect x="58.0" y="175.4" width="204.0" height="3.7" fill="#D0891C"/></g>
+<circle cx="160.0" cy="120.0" r="20" fill="#F2C44A"/>
+<path d="M152.0 90.0H168.0L177.0 105.0L143.0 105.0Z" fill="#C9823A" stroke="#C9823A" stroke-width="3" stroke-linejoin="round"/>
+</svg>

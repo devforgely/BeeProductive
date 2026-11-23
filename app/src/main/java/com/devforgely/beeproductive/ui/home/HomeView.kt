@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -50,13 +51,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -65,11 +69,16 @@ import com.devforgely.beeproductive.R
 import kotlin.math.roundToInt
 import com.devforgely.beeproductive.core.components.SoftCard
 import com.devforgely.beeproductive.core.theme.Amber
-import com.devforgely.beeproductive.core.theme.HoneyGold
+import com.devforgely.beeproductive.core.theme.CombLine
+import com.devforgely.beeproductive.core.theme.HiveFloorDeep
+import com.devforgely.beeproductive.core.theme.HiveFloorLight
+import com.devforgely.beeproductive.core.theme.HiveInk
+import com.devforgely.beeproductive.core.theme.isDuskTheme
 import com.devforgely.beeproductive.core.theme.Ink
 import com.devforgely.beeproductive.core.theme.InkSoft
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 import com.devforgely.beeproductive.core.theme.SageDeep
+import com.devforgely.beeproductive.core.theme.WaxShadow
 import com.devforgely.beeproductive.domain.model.HabitItem
 import com.devforgely.beeproductive.domain.model.HoneyRules
 import com.devforgely.beeproductive.ui.HiveViewModel
@@ -77,7 +86,7 @@ import com.devforgely.beeproductive.ui.common.HoneyPillButton
 import com.devforgely.beeproductive.ui.common.areaVisual
 
 private val GoalShape = RoundedCornerShape(18.dp)
-private val GoalShadow = Color.Black.copy(alpha = 0.08f)
+private val PaperShadow = WaxShadow.copy(alpha = 0.16f)
 private val GoalRowHeight = 80.dp
 private val GoalRowGap = 12.dp
 private val EnergyCardShape = RoundedCornerShape(22.dp)
@@ -110,17 +119,16 @@ fun HomeView(
             }
         }
     }
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
+    Box(Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp),
             userScrollEnabled = draggingId == null,
         ) {
-            item(key = "energy-space") { Spacer(Modifier.height(188.dp)) }
+            item(key = "home-scene") {
+                HiveHomeScene(Modifier.bleed(20.dp))
+            }
+            item(key = "scene-space") { Spacer(Modifier.height(8.dp)) }
             item(key = "energy") {
                 EnergyCard(
                     current = snapshot.energyShown,
@@ -192,7 +200,8 @@ fun HomeView(
             painter = painterResource(R.drawable.menu),
             contentDescription = "Settings",
             modifier = Modifier
-                .padding(start = 16.dp, top = 12.dp)
+                .statusBarsPadding()
+                .padding(start = 16.dp, top = 8.dp)
                 .size(42.dp)
                 .align(Alignment.TopStart)
                 .clickable(onClick = onSettings),
@@ -243,6 +252,7 @@ private fun GoalsHeader(
         1 -> "1 goal left for today!"
         else -> "$remaining goals left for today!"
     }
+    val onFloor = if (isDuskTheme()) Color.White else HiveInk
     val chevronTurn by animateFloatAsState(
         targetValue = if (expanded) 0f else -90f,
         animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
@@ -253,12 +263,13 @@ private fun GoalsHeader(
             Image(
                 painter = painterResource(R.drawable.ic_calendar),
                 contentDescription = null,
+                colorFilter = ColorFilter.tint(onFloor),
                 modifier = Modifier.size(28.dp),
             )
             Spacer(Modifier.width(10.dp))
             Text(
                 text = remainingLabel,
-                color = Color.White,
+                color = onFloor,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,
@@ -268,12 +279,14 @@ private fun GoalsHeader(
             Image(
                 painter = painterResource(R.drawable.ic_filter),
                 contentDescription = "Filter goals",
+                colorFilter = ColorFilter.tint(onFloor),
                 modifier = Modifier.size(26.dp),
             )
             Spacer(Modifier.width(14.dp))
             Image(
                 painter = painterResource(R.drawable.ic_grid_plus),
                 contentDescription = "Add from grid",
+                colorFilter = ColorFilter.tint(onFloor),
                 modifier = Modifier.size(26.dp),
             )
         }
@@ -285,7 +298,7 @@ private fun GoalsHeader(
             ) {
                 Text(
                     text = "Start the day",
-                    color = Color.White,
+                    color = onFloor,
                     fontWeight = FontWeight.SemiBold,
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -293,6 +306,7 @@ private fun GoalsHeader(
                 Image(
                     painter = painterResource(R.drawable.ic_chevron_down),
                     contentDescription = if (expanded) "Collapse goals" else "Expand goals",
+                    colorFilter = ColorFilter.tint(onFloor),
                     modifier = Modifier
                         .size(20.dp)
                         .graphicsLayer { rotationZ = chevronTurn },
@@ -303,12 +317,13 @@ private fun GoalsHeader(
                 Modifier
                     .weight(1f)
                     .height(1.dp)
-                    .background(Color.White.copy(alpha = 0.55f)),
+                    .background(onFloor.copy(alpha = 0.45f)),
             )
             Spacer(Modifier.width(8.dp))
             Image(
                 painter = painterResource(R.drawable.ic_add_circle),
                 contentDescription = "Add goal",
+                colorFilter = ColorFilter.tint(onFloor),
                 modifier = Modifier
                     .size(26.dp)
                     .clickable(onClick = onAdd),
@@ -324,7 +339,7 @@ private fun EnergyCard(current: Int, cap: Int, forageNumber: Int) {
         Modifier
             .fillMaxWidth()
             .clip(EnergyCardShape)
-            .background(Color.Black.copy(alpha = 0.5f))
+            .background(HiveFloorLight)
             .padding(start = 10.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -337,7 +352,7 @@ private fun EnergyCard(current: Int, cap: Int, forageNumber: Int) {
         Column(Modifier.weight(1f)) {
             Text(
                 text = "${ordinal(forageNumber)} forage",
-                color = Color.White,
+                color = HiveInk,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
@@ -349,17 +364,17 @@ private fun EnergyCard(current: Int, cap: Int, forageNumber: Int) {
                     .fillMaxWidth()
                     .height(22.dp)
                     .clip(EnergyBarShape)
-                    .background(Color.White.copy(alpha = 0.28f)),
+                    .background(Color.White.copy(alpha = 0.55f)),
             ) {
                 Box(
                     Modifier
                         .fillMaxWidth(fraction)
                         .fillMaxHeight()
-                        .background(HoneyGold),
+                        .background(HiveFloorDeep),
                 )
                 Text(
                     text = "$current / $cap",
-                    color = Color.White,
+                    color = HiveInk,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier
@@ -368,6 +383,15 @@ private fun EnergyCard(current: Int, cap: Int, forageNumber: Int) {
                 )
             }
         }
+    }
+}
+
+private fun Modifier.bleed(horizontal: Dp) = layout { measurable, constraints ->
+    val extra = horizontal.roundToPx()
+    val full = constraints.maxWidth + extra * 2
+    val placeable = measurable.measure(constraints.copy(minWidth = full, maxWidth = full))
+    layout(constraints.maxWidth, placeable.height) {
+        placeable.placeRelative(-extra, 0)
     }
 }
 
@@ -402,13 +426,14 @@ private fun GoalRow(
             .zIndex(if (dragging) 1f else 0f)
             .offset { IntOffset(0, if (dragging) accumulated.roundToInt() else 0) }
             .shadow(
-                elevation = if (dragging) 8.dp else 3.dp,
+                elevation = if (dragging) 10.dp else 5.dp,
                 shape = GoalShape,
-                ambientColor = GoalShadow,
-                spotColor = GoalShadow,
+                ambientColor = PaperShadow,
+                spotColor = PaperShadow,
             )
             .clip(GoalShape)
             .background(Color.White)
+            .border(1.dp, CombLine.copy(alpha = 0.28f), GoalShape)
             .padding(start = 8.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

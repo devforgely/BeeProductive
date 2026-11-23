@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 4,
-    "identityHash": "7c61bbf74d52358556b72aa00b509e88",
+    "version": 6,
+    "identityHash": "b546d3b4eb10a0e49ec956d585ebb4c1",
     "entities": [
       {
         "tableName": "bee_profile",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `personality` TEXT NOT NULL, `outfitId` TEXT, `decorationId` TEXT, `themeId` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `personality` TEXT NOT NULL, `outfitId` TEXT, `decorationId` TEXT, `themeId` TEXT, `wallpaperId` TEXT, `flooringId` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -39,6 +39,16 @@
           {
             "fieldPath": "themeId",
             "columnName": "themeId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wallpaperId",
+            "columnName": "wallpaperId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "flooringId",
+            "columnName": "flooringId",
             "affinity": "TEXT"
           }
         ],
@@ -164,7 +174,7 @@
       },
       {
         "tableName": "habits",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `cycleId` INTEGER NOT NULL, `title` TEXT NOT NULL, `lifeArea` TEXT NOT NULL, `active` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `cycleId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `lifeArea` TEXT NOT NULL, `active` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -181,6 +191,12 @@
           {
             "fieldPath": "title",
             "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -765,7 +781,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7c61bbf74d52358556b72aa00b509e88')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b546d3b4eb10a0e49ec956d585ebb4c1')"
     ]
   }
 }

@@ -67,9 +67,9 @@ dependencies {
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.lottie.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
     implementation(libs.billing.ktx)
-    implementation(libs.glance.appwidget)
-    implementation(libs.glance.material3)
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
 
