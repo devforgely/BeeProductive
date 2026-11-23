@@ -13,8 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
@@ -33,25 +36,28 @@ fun SolidButton(
     containerColor: Color = SkyBlue,
     shadowColor: Color = SkyBlueShadow,
     contentColor: Color = Color.White,
+    height: Dp = 52.dp,
+    fontSize: TextUnit = 16.sp,
+    shape: Shape = SolidButtonShape,
 ) {
     val disabledFace = lerp(Color.White, containerColor, 0.45f)
     val lip = if (enabled) shadowColor else lerp(disabledFace, shadowColor, 0.3f)
-    Box(modifier.height(52.dp + SolidButtonShadowDrop)) {
+    Box(modifier.height(height + SolidButtonShadowDrop)) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(height)
                 .align(Alignment.BottomCenter)
-                .background(lip, SolidButtonShape),
+                .background(lip, shape),
         )
         Button(
             onClick = onClick,
             enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(height)
                 .align(Alignment.TopCenter),
-            shape = SolidButtonShape,
+            shape = shape,
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 0.dp,
                 pressedElevation = 0.dp,
@@ -70,7 +76,7 @@ fun SolidButton(
             Text(
                 text = text,
                 fontFamily = RubikFontFamily,
-                fontSize = 16.sp,
+                fontSize = fontSize,
                 fontWeight = FontWeight.Bold,
             )
         }

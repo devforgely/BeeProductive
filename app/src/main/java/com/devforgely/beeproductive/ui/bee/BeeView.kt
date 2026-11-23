@@ -28,7 +28,7 @@ import com.devforgely.beeproductive.ui.common.HoneyPillButton
 import com.devforgely.beeproductive.ui.common.PaperPage
 
 @Composable
-fun BeeScreen(viewModel: HiveViewModel = hiltViewModel()) {
+fun BeeView(viewModel: HiveViewModel = hiltViewModel()) {
     val snapshot by viewModel.snapshot.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
     val bee = snapshot.bee
@@ -45,7 +45,6 @@ fun BeeScreen(viewModel: HiveViewModel = hiltViewModel()) {
             }
             Spacer(Modifier.height(12.dp))
             PassportRow("Trait", bee?.personality?.label ?: "Still settling")
-            PassportRow("Age", ageLabel(snapshot.cycle?.dayIndex))
             PassportRow("Human", prefs.userName.ifBlank { "You" })
             bee?.personality?.let {
                 Spacer(Modifier.height(8.dp))
@@ -125,9 +124,4 @@ private fun PassportRow(label: String, value: String) {
             style = MaterialTheme.typography.bodyLarge,
         )
     }
-}
-
-private fun ageLabel(dayIndex: Int?): String {
-    val days = dayIndex ?: 0
-    return if (days == 1) "1 day" else "$days days"
 }

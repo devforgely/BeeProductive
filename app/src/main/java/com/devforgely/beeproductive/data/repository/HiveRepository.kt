@@ -9,36 +9,33 @@ import com.devforgely.beeproductive.data.local.entity.ForageEntity
 import com.devforgely.beeproductive.data.local.entity.HabitEntity
 import com.devforgely.beeproductive.data.local.entity.HabitLogEntity
 import com.devforgely.beeproductive.data.local.entity.HoneyJarEntity
+import com.devforgely.beeproductive.data.local.entity.HoneyLedgerEntryEntity
 import com.devforgely.beeproductive.data.local.entity.JournalEntity
 import com.devforgely.beeproductive.data.local.entity.MilestoneEntity
 import com.devforgely.beeproductive.data.local.entity.MiniGoalEntity
-import com.devforgely.beeproductive.data.local.entity.HoneyLedgerEntryEntity
 import com.devforgely.beeproductive.data.local.entity.OwnedCosmeticEntity
 import com.devforgely.beeproductive.data.local.entity.StreakRepairEntity
 import com.devforgely.beeproductive.data.local.entity.WeeklyReviewEntity
 import com.devforgely.beeproductive.data.widget.WidgetFace
 import com.devforgely.beeproductive.data.widget.WidgetUpdater
-import com.devforgely.beeproductive.domain.model.BeeProfile
 import com.devforgely.beeproductive.domain.model.BeePersonality
+import com.devforgely.beeproductive.domain.model.BeeProfile
 import com.devforgely.beeproductive.domain.model.CheckItem
 import com.devforgely.beeproductive.domain.model.CosmeticCatalog
 import com.devforgely.beeproductive.domain.model.CosmeticKind
 import com.devforgely.beeproductive.domain.model.CycleCalendar
-import com.devforgely.beeproductive.domain.model.CycleSnapshot
 import com.devforgely.beeproductive.domain.model.CycleStage
 import com.devforgely.beeproductive.domain.model.CycleStatus
 import com.devforgely.beeproductive.domain.model.CycleView
 import com.devforgely.beeproductive.domain.model.ForageItem
-import com.devforgely.beeproductive.domain.model.ForageOutcome
 import com.devforgely.beeproductive.domain.model.ForageRewardKind
 import com.devforgely.beeproductive.domain.model.GoalCompletion
 import com.devforgely.beeproductive.domain.model.GoalItem
 import com.devforgely.beeproductive.domain.model.HabitAddResult
 import com.devforgely.beeproductive.domain.model.HabitItem
-import com.devforgely.beeproductive.domain.model.HarvestChoice
-import com.devforgely.beeproductive.domain.model.HarvestPlanner
-import com.devforgely.beeproductive.domain.model.HiveCopy
 import com.devforgely.beeproductive.domain.model.HiveSnapshot
+import com.devforgely.beeproductive.domain.model.HoneyLedgerItem
+import com.devforgely.beeproductive.domain.model.HoneyRules
 import com.devforgely.beeproductive.domain.model.JarItem
 import com.devforgely.beeproductive.domain.model.JournalItem
 import com.devforgely.beeproductive.domain.model.JournalKind
@@ -47,8 +44,6 @@ import com.devforgely.beeproductive.domain.model.LifeAreaTemplate
 import com.devforgely.beeproductive.domain.model.LifeAreaTemplates
 import com.devforgely.beeproductive.domain.model.LogItem
 import com.devforgely.beeproductive.domain.model.Mood
-import com.devforgely.beeproductive.domain.model.HoneyLedgerItem
-import com.devforgely.beeproductive.domain.model.HoneyRules
 import com.devforgely.beeproductive.domain.model.OnboardingDraft
 import com.devforgely.beeproductive.domain.model.PlannedHabit
 import com.devforgely.beeproductive.domain.model.RepairOutcome
@@ -169,27 +164,6 @@ class HiveRepository @Inject constructor(
         notifications.applySchedule()
     }
 
-    suspend fun buildFreshCycle(northStar: String, area: LifeArea, habits: List<String>, tone: String) {
-        if (dao.activeCycle() != null) return
-        val today = LocalDate.now()
-        val cycleId = insertActiveCycle(northStar, area, tone, today)
-        val planned = habits.ifEmpty { LifeAreaTemplates.forArea(area).starterHabits }
-            .map { PlannedHabit(it, area) }
-        insertHabits(cycleId, planned)
-        insertGoals(cycleId, LifeAreaTemplates.forArea(area), elevate = false)
-    }
-
-    suspend fun checkIn(mood: Mood) {
-        val cycle = dao.activeCycle() ?: return
-        dao.upsertCheckIn(
-            CheckInEntity(
-                cycleId = cycle.id,
-                day = LocalDate.now().toString(),
-                mood = mood.name,
-            ),
-        )
-    }
-
     suspend fun completeHabit(habitId: Long): GoalCompletion {
         val cycle = dao.activeCycle() ?: return GoalCompletion(saved = false)
         val today = LocalDate.now().toString()
@@ -229,6 +203,7 @@ class HiveRepository @Inject constructor(
             HabitEntity(
                 cycleId = cycle.id,
                 title = cleaned,
+                description = "",
                 lifeArea = cycle.lifeArea.name,
                 active = true,
                 sortOrder = snap.habits.size,
@@ -246,93 +221,6 @@ class HiveRepository @Inject constructor(
         orderedIds.forEachIndexed { index, id ->
             dao.updateHabitSort(id, index)
         }
-    }
-
-    suspend fun retireHabit(id: Long) {
-        dao.retireHabit(id)
-    }
-
-    suspend fun bloomGoal(goalId: Long) {
-        val goal = dao.goal(goalId) ?: return
-        if (goal.bloomed) return
-        dao.bloomGoal(goalId)
-        grant(goal.cycleId, LocalDate.now().toString(), HoneyRules.MINI_GOAL_HONEY, "goal")
-    }
-
-    suspend fun addWeeklyGoal(title: String) {
-        val cleaned = title.trim()
-        if (cleaned.isEmpty()) return
-        val cycle = dao.activeCycle() ?: return
-        val stage = CycleCalendar.stage(
-            CycleCalendar.dayIndex(LocalDate.parse(cycle.startDate), LocalDate.now()),
-        )
-        dao.insertGoal(
-            MiniGoalEntity(
-                cycleId = cycle.id,
-                title = cleaned,
-                stage = stage.name,
-                bloomed = false,
-                weekly = true,
-            ),
-        )
-    }
-
-    suspend fun saveWeeklyNote(note: String) {
-        val cycle = dao.activeCycle() ?: return
-        val day = CycleCalendar.dayIndex(LocalDate.parse(cycle.startDate), LocalDate.now())
-        dao.upsertWeekly(
-            WeeklyReviewEntity(
-                cycleId = cycle.id,
-                weekIndex = CycleCalendar.weekIndex(day),
-                note = note.trim(),
-            ),
-        )
-    }
-
-    suspend fun forage(): ForageOutcome {
-        val snap = observe().first()
-        val cycle = snap.cycle ?: return ForageOutcome.NoCycle
-        if (snap.foragedToday) return ForageOutcome.AlreadyWent
-        if (!snap.goalMet) return ForageOutcome.NotReady
-        val script = HiveCopy.forageScript(snap.today.dayOfYear)
-        val gift = if (script.grantsCosmetic) CosmeticCatalog.freeForageGift else null
-        val ownedGift = gift != null && gift.id in snap.ownedIds
-        val resolved = if (ownedGift) {
-            HiveCopy.basicForages.first { it.kind == ForageRewardKind.INSIGHT }
-        } else {
-            script
-        }
-        val today = snap.today.toString()
-        dao.insertForage(
-            ForageEntity(
-                cycleId = cycle.id,
-                day = today,
-                rewardKind = resolved.kind.name,
-                title = resolved.title,
-                body = resolved.body,
-            ),
-        )
-        if (resolved.grantsCosmetic && gift != null) {
-            dao.insertOwned(OwnedCosmeticEntity(gift.id, today))
-        }
-        val amount = HoneyRules.FORAGE_HONEY + HoneyRules.forageBonus()
-        grant(cycle.id, today, amount, "forage")
-        return ForageOutcome.Found(resolved.title, resolved.body, resolved.kind)
-    }
-
-    suspend fun saveJournal(kind: JournalKind, prompt: String, body: String) {
-        val cleaned = body.trim()
-        if (cleaned.isEmpty()) return
-        val cycle = dao.activeCycle() ?: return
-        dao.insertJournal(
-            JournalEntity(
-                cycleId = cycle.id,
-                day = LocalDate.now().toString(),
-                kind = kind.name,
-                prompt = prompt,
-                body = cleaned,
-            ),
-        )
     }
 
     suspend fun grantFocusBlock(): Boolean {
@@ -404,67 +292,6 @@ class HiveRepository @Inject constructor(
         dao.upsertBee(updated)
     }
 
-    suspend fun acknowledgePhase(dayMark: Int, reflection: String) {
-        val cycle = dao.activeCycle() ?: return
-        dao.insertMilestone(MilestoneEntity(cycleId = cycle.id, dayMark = dayMark))
-        val title = if (dayMark == 30) "First comb" else "Open honey"
-        dao.insertJar(
-            HoneyJarEntity(
-                cycleId = cycle.id,
-                title = title,
-                subtitle = if (dayMark == 30) {
-                    "The foundational comb is in place."
-                } else {
-                    "The meadow is in full honey flow."
-                },
-                kind = "PHASE",
-                dayMark = dayMark,
-                createdOn = LocalDate.now().toString(),
-            ),
-        )
-        if (reflection.isNotBlank()) {
-            dao.insertJournal(
-                JournalEntity(
-                    cycleId = cycle.id,
-                    day = LocalDate.now().toString(),
-                    kind = JournalKind.PHASE.name,
-                    prompt = HiveCopy.phaseReflection(dayMark),
-                    body = reflection.trim(),
-                ),
-            )
-        }
-    }
-
-    suspend fun harvest(choice: HarvestChoice, editedNorthStar: String) {
-        val cycle = dao.activeCycle() ?: return
-        val area = LifeArea.valueOf(cycle.lifeArea)
-        val northStar = when (choice) {
-            HarvestChoice.PIVOT -> editedNorthStar.trim().ifBlank { cycle.northStar }
-            else -> cycle.northStar
-        }
-        val planned = HarvestPlanner.plan(
-            choice,
-            CycleSnapshot(northStar, area, cycle.themeNote),
-        )
-        dao.updateCycle(cycle.copy(status = planned.closedStatus.name, harvested = true))
-        dao.insertJar(
-            HoneyJarEntity(
-                cycleId = cycle.id,
-                title = planned.jarTitle,
-                subtitle = planned.jarSubtitle,
-                kind = "HARVEST",
-                dayMark = CycleCalendar.CYCLE_LENGTH,
-                createdOn = LocalDate.now().toString(),
-            ),
-        )
-        val next = planned.next ?: return
-        val template = LifeAreaTemplates.forArea(next.lifeArea)
-        val newId = insertActiveCycle(next.northStar, next.lifeArea, next.themeNote, LocalDate.now())
-        val habits = if (next.elevate) template.elevatedHabits else template.starterHabits
-        insertHabits(newId, habits.map { PlannedHabit(it, next.lifeArea) })
-        insertGoals(newId, template, next.elevate)
-    }
-
     private suspend fun insertActiveCycle(
         northStar: String,
         area: LifeArea,
@@ -491,6 +318,9 @@ class HiveRepository @Inject constructor(
                 HabitEntity(
                     cycleId = cycleId,
                     title = cleaned,
+                    description = habit.description.ifBlank {
+                        LifeAreaTemplates.forArea(habit.area).northStar
+                    },
                     lifeArea = habit.area.name,
                     active = true,
                     sortOrder = index,
@@ -597,7 +427,14 @@ private fun Header.toSnapshot(
         habits = chunk?.habits.orEmpty().map {
             val fallback = cycleView?.lifeArea ?: LifeArea.MIND_FOCUS
             val area = runCatching { LifeArea.valueOf(it.lifeArea) }.getOrDefault(fallback)
-            HabitItem(it.id, it.title, area, it.active, it.id in doneToday)
+            HabitItem(
+                id = it.id,
+                title = it.title,
+                description = it.description,
+                area = area,
+                active = it.active,
+                doneToday = it.id in doneToday,
+            )
         },
         goals = chunk?.goals.orEmpty().map { goal ->
             val stage = CycleStage.valueOf(goal.stage)

@@ -14,7 +14,8 @@ import java.util.zip.ZipInputStream
 internal const val HiveSwingLottieAsset = "lottie/hive_swing.lottie"
 internal const val BeeTraitsLottieAsset = "lottie/bee_traits.lottie"
 internal const val BeeIdleAnimationId = "bee_idle"
-internal const val BeeWelcomeAnimationId = "bee_welcome"
+const val BeeWelcomeAnimationId = "bee_welcome"
+const val BeeCelebrateAnimationId = "bee_celebrate"
 
 internal fun beeTraitAnimationId(personality: BeePersonality): String = when (personality) {
     BeePersonality.COMPASSIONATE -> "bee_conpassionate"
@@ -26,7 +27,7 @@ internal fun rememberHiveSwingComposition(): LottieCompositionResult =
     rememberLottieComposition(LottieCompositionSpec.Asset(HiveSwingLottieAsset))
 
 @Composable
-internal fun rememberBeeTraitsComposition(animationId: String): LottieCompositionResult {
+fun rememberBeeTraitsComposition(animationId: String): LottieCompositionResult {
     val context = LocalContext.current
     val spec = remember(BeeTraitsLottieAsset, animationId) {
         LottieCompositionSpec.JsonString(

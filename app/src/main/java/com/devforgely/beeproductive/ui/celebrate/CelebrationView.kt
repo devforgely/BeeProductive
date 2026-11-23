@@ -43,7 +43,7 @@ import com.devforgely.beeproductive.ui.common.HoneyPillButton
 private const val CelebrateAsset = "lottie/bee_celebrate.lottie"
 
 @Composable
-fun CelebrationScreen(
+fun CelebrationView(
     honey: Int,
     cells: Int,
     onDone: () -> Unit,

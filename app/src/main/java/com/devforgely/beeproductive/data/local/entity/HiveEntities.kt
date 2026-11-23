@@ -46,6 +46,7 @@ data class HabitEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val cycleId: Long,
     val title: String,
+    val description: String = "",
     val lifeArea: String,
     val active: Boolean,
     val sortOrder: Int,

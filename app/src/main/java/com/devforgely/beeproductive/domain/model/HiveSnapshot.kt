@@ -24,6 +24,7 @@ data class CycleView(
 data class HabitItem(
     val id: Long,
     val title: String,
+    val description: String,
     val area: LifeArea,
     val active: Boolean,
     val doneToday: Boolean,
@@ -185,6 +186,7 @@ data class HiveSnapshot(
 data class PlannedHabit(
     val title: String,
     val area: LifeArea,
+    val description: String = "",
 )
 
 data class OnboardingDraft(

@@ -11,14 +11,14 @@ class SupportProductsTest {
     @Test
     fun catalogOffersThreeOptionalGifts() {
         assertEquals(3, SupportProducts.catalog.size)
-        assertTrue(SupportProducts.NECTAR in SupportProducts.ALL)
-        assertTrue(SupportProducts.HIVE in SupportProducts.ALL)
-        assertTrue(SupportProducts.GARDEN in SupportProducts.ALL)
+        assertTrue(SupportProducts.HONEY in SupportProducts.ALL)
+        assertTrue(SupportProducts.JAR in SupportProducts.ALL)
+        assertTrue(SupportProducts.COMB in SupportProducts.ALL)
     }
 
     @Test
     fun matchingIgnoresAnythingThatIsNotAGift() {
-        assertEquals(SupportProducts.HIVE, SupportProducts.matching(listOf("other", SupportProducts.HIVE)))
+        assertEquals(SupportProducts.JAR, SupportProducts.matching(listOf("other", SupportProducts.JAR)))
         assertNull(SupportProducts.matching(listOf("bee_plus_annual")))
         assertFalse("bee_plus_monthly" in SupportProducts.ALL)
     }

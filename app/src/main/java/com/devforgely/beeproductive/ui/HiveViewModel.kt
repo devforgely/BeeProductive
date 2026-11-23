@@ -3,19 +3,13 @@ package com.devforgely.beeproductive.ui
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.devforgely.beeproductive.data.repository.BillingEvent
 import com.devforgely.beeproductive.data.repository.BillingRepository
 import com.devforgely.beeproductive.data.repository.HiveRepository
 import com.devforgely.beeproductive.data.repository.NotificationRepository
 import com.devforgely.beeproductive.data.repository.UserPreferencesRepository
-import com.devforgely.beeproductive.domain.model.ForageOutcome
 import com.devforgely.beeproductive.domain.model.GoalCompletion
 import com.devforgely.beeproductive.domain.model.HabitAddResult
-import com.devforgely.beeproductive.domain.model.HarvestChoice
 import com.devforgely.beeproductive.domain.model.HiveSnapshot
-import com.devforgely.beeproductive.domain.model.JournalKind
-import com.devforgely.beeproductive.domain.model.LifeArea
-import com.devforgely.beeproductive.domain.model.Mood
 import com.devforgely.beeproductive.domain.model.OfferLoad
 import com.devforgely.beeproductive.domain.model.RepairOutcome
 import com.devforgely.beeproductive.domain.model.ShopOutcome
@@ -52,6 +46,10 @@ class HiveViewModel @Inject constructor(
 
     fun renameHabit(id: Long, title: String) = launch { repository.renameHabit(id, title) }
 
+    fun addHabit(title: String, onDone: (HabitAddResult) -> Unit = {}) = launch {
+        onDone(repository.addHabit(title))
+    }
+
     fun reorderHabits(orderedIds: List<Long>) = launch { repository.reorderHabits(orderedIds) }
 
     fun grantFocusBlock(onGranted: (Boolean) -> Unit = {}) = launch {
@@ -61,8 +59,6 @@ class HiveViewModel @Inject constructor(
     fun repair(onResult: (RepairOutcome) -> Unit) = launch { onResult(repository.repairStreak()) }
 
     fun buy(id: String, onResult: (ShopOutcome) -> Unit) = launch { onResult(repository.buy(id)) }
-
-    fun setDusk(enabled: Boolean) = launch { preferences.setDusk(enabled) }
 
     fun setMorning(enabled: Boolean) = launch {
         preferences.setMorningNotes(enabled)

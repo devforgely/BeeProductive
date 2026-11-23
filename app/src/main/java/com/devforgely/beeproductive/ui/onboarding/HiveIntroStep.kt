@@ -48,7 +48,7 @@ private const val HiveSwingAudioAsset = "audio/hive_swing.mp3"
 private const val HiveSwingLoudnessGainMilliBel = 1400
 private const val BeeEmergeDurationMillis = 3_000
 private const val HiveFadeOutDurationMillis = 2_000
-private val WelcomeScreenDuration = 3.seconds
+private val WelcomeIntroDuration = 3.seconds
 
 private val HivePopEasing = CubicBezierEasing(0.22f, 1.22f, 0.32f, 1f)
 private val HiveEnterEasing = CubicBezierEasing(0.16f, 1f, 0.3f, 1f)
@@ -159,7 +159,7 @@ internal fun HiveIntroStep(onFinished: () -> Unit) {
                 launch {
                     caption.animateTo(1f, tween(durationMillis = 300, easing = HiveEnterEasing))
                 }
-                launch { delay(WelcomeScreenDuration) }
+                launch { delay(WelcomeIntroDuration) }
             }
             finish()
         } finally {

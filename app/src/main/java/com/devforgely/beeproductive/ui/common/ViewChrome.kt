@@ -1,5 +1,6 @@
 package com.devforgely.beeproductive.ui.common
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,17 +31,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.devforgely.beeproductive.R
 import com.devforgely.beeproductive.core.theme.Amber
-import com.devforgely.beeproductive.core.theme.Ink
 
 @Composable
 fun PaperPage(
     modifier: Modifier = Modifier,
+    background: Color = MaterialTheme.colorScheme.background,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(background)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -53,20 +51,13 @@ fun PaperPage(
 
 @Composable
 fun HiveBackButton(onBack: () -> Unit) {
-    Box(
-        Modifier
-            .size(44.dp)
-            .clip(CircleShape)
-            .background(Color.White)
+    Image(
+        painter = painterResource(R.drawable.back),
+        contentDescription = "Back",
+        modifier = Modifier
+            .size(36.dp)
             .clickable(onClick = onBack),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back",
-            tint = Ink,
-        )
-    }
+    )
 }
 
 @Composable
@@ -78,7 +69,7 @@ fun HoneyBalanceChip(amount: Int) {
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        androidx.compose.foundation.Image(
+        Image(
             painter = painterResource(R.drawable.honey),
             contentDescription = null,
             modifier = Modifier.size(22.dp),

@@ -79,13 +79,6 @@ enum class BeeClip {
     FLUTTER,
     CELEBRATE,
     FORAGE,
-    WELCOME,
-}
-
-enum class Ritual {
-    PHASE_30,
-    PHASE_60,
-    HARVEST,
 }
 
 data class SupportTier(
@@ -95,14 +88,14 @@ data class SupportTier(
 )
 
 object SupportProducts {
-    const val NECTAR = "bee_support_nectar"
-    const val HIVE = "bee_support_hive"
-    const val GARDEN = "bee_support_garden"
+    const val HONEY = "bee_support_honey"
+    const val JAR = "bee_support_jar"
+    const val COMB = "bee_support_comb"
 
     val catalog = listOf(
-        SupportTier(NECTAR, "A drop of honey", "A small thank-you for the person who tends this app."),
-        SupportTier(HIVE, "A jar for the keeper", "A warmer gift. The hive stays exactly as free as before."),
-        SupportTier(GARDEN, "A whole meadow", "A generous gift that helps the garden keep growing."),
+        SupportTier(HONEY, "Drops of honey", "A small thank-you for the developer."),
+        SupportTier(JAR, "A jar of honey", "A bigger thank-you for the developer."),
+        SupportTier(COMB, "A full comb", "A generous thank-you that helps the developer keep building."),
     )
 
     val ALL = catalog.map { it.id }.toSet()

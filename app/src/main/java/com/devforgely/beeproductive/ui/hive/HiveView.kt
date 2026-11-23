@@ -35,7 +35,7 @@ import java.time.DayOfWeek
 import java.time.temporal.TemporalAdjusters
 
 @Composable
-fun HiveScreen(viewModel: HiveViewModel = hiltViewModel()) {
+fun HiveView(viewModel: HiveViewModel = hiltViewModel()) {
     val snapshot by viewModel.snapshot.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
     val filled = snapshot.cells.count { it.fill >= 1f }

@@ -44,7 +44,7 @@ import kotlin.time.Duration.Companion.seconds
 private const val FocusSeconds = 25 * 60
 
 @Composable
-fun FocusScreen(
+fun FocusView(
     onBack: () -> Unit,
     viewModel: HiveViewModel = hiltViewModel(),
 ) {

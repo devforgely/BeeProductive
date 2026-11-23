@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.devforgely.beeproductive.R
-import com.devforgely.beeproductive.core.theme.NavInk
+import com.devforgely.beeproductive.core.theme.NavBar
 import com.devforgely.beeproductive.core.theme.RubikFontFamily
 
 private data class HiveTab(val route: String, val label: String, val icon: Int)
@@ -39,12 +39,12 @@ fun BeeProductiveBottomBar(
     beeName: String,
     onNavigate: (String) -> Unit,
 ) {
-    Surface(color = NavInk) {
+    Surface(color = NavBar) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(top = 8.dp, bottom = 6.dp),
+                .padding(top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             hiveTabs.forEach { tab ->
@@ -53,14 +53,13 @@ fun BeeProductiveBottomBar(
                 Column(
                     Modifier
                         .weight(1f)
-                        .clickable { onNavigate(tab.route) }
-                        .padding(vertical = 4.dp),
+                        .clickable { onNavigate(tab.route) },
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(
                         painter = painterResource(tab.icon),
                         contentDescription = label,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(36.dp),
                     )
                     Text(
                         text = label,

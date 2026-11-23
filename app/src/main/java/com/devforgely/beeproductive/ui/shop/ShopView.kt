@@ -40,7 +40,7 @@ import com.devforgely.beeproductive.ui.common.HoneyPillButton
 import com.devforgely.beeproductive.ui.common.PaperPage
 
 @Composable
-fun ShopScreen(viewModel: HiveViewModel = hiltViewModel()) {
+fun ShopView(viewModel: HiveViewModel = hiltViewModel()) {
     val snapshot by viewModel.snapshot.collectAsState()
     var note by remember { mutableStateOf<String?>(null) }
     PaperPage {

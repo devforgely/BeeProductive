@@ -1,9 +1,13 @@
 package com.devforgely.beeproductive.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,7 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -25,17 +29,19 @@ import androidx.navigation.navArgument
 import com.devforgely.beeproductive.core.navigation.BeeProductiveBottomBar
 import com.devforgely.beeproductive.core.navigation.Routes
 import com.devforgely.beeproductive.core.theme.BeeProductiveTheme
-import com.devforgely.beeproductive.ui.bee.BeeScreen
-import com.devforgely.beeproductive.ui.celebrate.CelebrationScreen
-import com.devforgely.beeproductive.ui.focus.FocusScreen
-import com.devforgely.beeproductive.ui.hive.HiveScreen
-import com.devforgely.beeproductive.ui.home.HomeScreen
-import com.devforgely.beeproductive.ui.onboarding.OnboardingScreen
-import com.devforgely.beeproductive.ui.quest.QuestDetailScreen
-import com.devforgely.beeproductive.ui.quest.QuestListScreen
+import com.devforgely.beeproductive.core.theme.SettingsBackground
+import com.devforgely.beeproductive.core.theme.SupporterPurple
+import com.devforgely.beeproductive.ui.bee.BeeView
+import com.devforgely.beeproductive.ui.celebrate.CelebrationView
+import com.devforgely.beeproductive.ui.focus.FocusView
+import com.devforgely.beeproductive.ui.hive.HiveView
+import com.devforgely.beeproductive.ui.home.HomeView
+import com.devforgely.beeproductive.ui.onboarding.OnboardingView
+import com.devforgely.beeproductive.ui.quest.QuestDetailView
+import com.devforgely.beeproductive.ui.quest.QuestListView
 import com.devforgely.beeproductive.ui.setting.SettingView
-import com.devforgely.beeproductive.ui.shop.ShopScreen
-import com.devforgely.beeproductive.ui.supporter.SupporterScreen
+import com.devforgely.beeproductive.ui.shop.ShopView
+import com.devforgely.beeproductive.ui.supporter.SupporterView
 
 @Composable
 fun BeeProductiveApp(viewModel: BeeProductiveAppViewModel = hiltViewModel()) {
@@ -65,8 +71,19 @@ private fun HiveNavHost(startRoute: String) {
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route
     val showBar = current in Routes.tabs
+    val openSupporter = remember(nav) {
+        {
+            nav.navigate(Routes.SUPPORTER) {
+                launchSingleTop = true
+            }
+        }
+    }
     Scaffold(
-        containerColor = Color.Transparent,
+        containerColor = when (current) {
+            Routes.SETTINGS -> SettingsBackground
+            Routes.SUPPORTER -> SupporterPurple
+            else -> MaterialTheme.colorScheme.background
+        },
         bottomBar = {
             if (showBar) {
                 BeeProductiveBottomBar(
@@ -84,20 +101,30 @@ private fun HiveNavHost(startRoute: String) {
             }
         },
     ) { padding ->
+        val layoutDirection = LocalLayoutDirection.current
+        val hostPadding = if (current == Routes.QUEST) {
+            PaddingValues(
+                start = padding.calculateStartPadding(layoutDirection),
+                top = padding.calculateTopPadding(),
+                end = padding.calculateEndPadding(layoutDirection),
+            )
+        } else {
+            padding
+        }
         NavHost(
             navController = nav,
             startDestination = startRoute,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier.padding(hostPadding),
         ) {
             composable(Routes.ONBOARDING) {
-                OnboardingScreen(onFinished = {
+                OnboardingView(onFinished = {
                     nav.navigate(Routes.HOME) {
                         popUpTo(Routes.ONBOARDING) { inclusive = true }
                     }
                 })
             }
             composable(Routes.HOME) {
-                HomeScreen(
+                HomeView(
                     onSettings = { nav.navigate(Routes.SETTINGS) },
                     onFocus = { nav.navigate(Routes.FOCUS) },
                     onCelebrate = { honey, cells ->
@@ -106,21 +133,21 @@ private fun HiveNavHost(startRoute: String) {
                 )
             }
             composable(Routes.QUESTS) {
-                QuestListScreen(onArea = { area -> nav.navigate(Routes.quest(area.name)) })
+                QuestListView(onArea = { area -> nav.navigate(Routes.quest(area.name)) })
             }
             composable(
                 route = Routes.QUEST,
                 arguments = listOf(navArgument("area") { type = NavType.StringType }),
             ) { backStack ->
-                QuestDetailScreen(
+                QuestDetailView(
                     areaName = backStack.arguments?.getString("area").orEmpty(),
                     onBack = { nav.popBackStack() },
                 )
             }
-            composable(Routes.HIVE) { HiveScreen() }
-            composable(Routes.SHOP) { ShopScreen() }
-            composable(Routes.BEE) { BeeScreen() }
-            composable(Routes.FOCUS) { FocusScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.HIVE) { HiveView() }
+            composable(Routes.SHOP) { ShopView() }
+            composable(Routes.BEE) { BeeView() }
+            composable(Routes.FOCUS) { FocusView(onBack = { nav.popBackStack() }) }
             composable(
                 route = Routes.CELEBRATION,
                 arguments = listOf(
@@ -128,7 +155,7 @@ private fun HiveNavHost(startRoute: String) {
                     navArgument("cells") { type = NavType.IntType },
                 ),
             ) { backStack ->
-                CelebrationScreen(
+                CelebrationView(
                     honey = backStack.arguments?.getInt("honey") ?: 0,
                     cells = backStack.arguments?.getInt("cells") ?: 0,
                     onDone = { nav.popBackStack() },
@@ -137,11 +164,11 @@ private fun HiveNavHost(startRoute: String) {
             composable(Routes.SETTINGS) {
                 SettingView(
                     onBack = { nav.popBackStack() },
-                    onSupport = { nav.navigate(Routes.SUPPORTER) },
+                    onSupport = openSupporter,
                 )
             }
             composable(Routes.SUPPORTER) {
-                SupporterScreen(onClose = { nav.popBackStack() })
+                SupporterView(onClose = { nav.popBackStack() })
             }
         }
     }
